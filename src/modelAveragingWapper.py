@@ -126,15 +126,15 @@ def crossValidated(model, file, fold):
       testFileTmp = file+'_cv'+str(k+1)+'_test'
       print '- training %s using %s' % (mymodel, trainFileTmp)
       if mymodel == 'Benchmark' : 
-        cmd = './trainModel -m LogisticRegressionL1 -c 10000 -t %s -o ./%s_trained%s' \
+        cmd = './trainModel -m LogisticRegressionL1 -c 10000 -t %s -o %s_trained%s' \
         % (trainFileTmp+'_Benchmark', trainFileTmp, mymodel)
       elif mymodel == 'RandomForest' :
-        cmd = './trainModel -m %s -c 1 -t %s -o ./%s_trained%s' % \
+        cmd = './trainModel -m %s -c 1 -t %s -o %s_trained%s' % \
           (mymodel, trainFileTmp, trainFileTmp, mymodel)
       else : # liblinear model
         (modelname, modelc) = mymodel.split('_')
         print '-- with c = %s' % modelc
-        cmd = './trainModel -m %s -c %s -t %s -o ./%s_trained%s' %  \
+        cmd = './trainModel -m %s -c %s -t %s -o %s_trained%s' %  \
           (modelname, modelc, trainFileTmp, trainFileTmp, mymodel)
 
       print '- cmd is %s' % cmd 
@@ -174,7 +174,7 @@ def crossValidated(model, file, fold):
     ys = [ int(a) for a in p.stdout.read().split('\n') if len(a) > 0 ] # last element is ''
 
     for mymodel in model:
-      tmpResultFile = './%s_result%sBy%s' % (testFileTmp, mymodel, os.path.basename(trainFileTmp)[:4])
+      tmpResultFile = '%s_result%sBy%s' % (testFileTmp, mymodel, os.path.basename(trainFileTmp)[:4])
       fp = open(tmpResultFile, "r")
       if re.match(r"LogisticRegression|Benchmark", mymodel) :
         tmp = fp.read().splitlines()
@@ -247,18 +247,18 @@ def trainModels(trainFile, testFile, model) :
     print '------------------------------------'
     print '- training %s using %s' % (mymodel, trainFile)
 
-    if os.path.isfile('./%s_trained%s' % (trainFile, mymodel)) :
+    if os.path.isfile('%s_trained%s' % (trainFile, mymodel)) :
       continue
     if mymodel == 'Benchmark' :
-      cmd = './trainModel -m LogisticRegressionL1 -c 10000 -t %s -o ./%s_trained%s' \
+      cmd = './trainModel -m LogisticRegressionL1 -c 10000 -t %s -o %s_trained%s' \
         % (trainFile+'_Benchmark', trainFile, mymodel)
     elif mymodel == 'RandomForest' :
-      cmd = './trainModel -m %s -c 1 -t %s -o ./%s_trained%s' % \
+      cmd = './trainModel -m %s -c 1 -t %s -o %s_trained%s' % \
         (mymodel, trainFile, trainFile, mymodel)
     else : # model with c value added
       (modelname, modelc) = mymodel.split('_')
       print '-- with c = %s' % modelc
-      cmd = './trainModel -m %s -c %s -t %s -o ./%s_trained%s' %  \
+      cmd = './trainModel -m %s -c %s -t %s -o %s_trained%s' %  \
         (modelname, modelc, trainFile, trainFile, mymodel)
 
     print '- cmd is %s' % cmd
@@ -290,15 +290,15 @@ def predictModels(trainFile, testFile, model):
     print '********** model is %s*************' % mymodel
     
     print '- predicting %s using %s' % (testFile, mymodel)
-    if os.path.isfile('./%s_result%sBy%s' % (testFile,mymodel, os.path.basename(trainFile)[:4])) :
+    if os.path.isfile('%s_result%sBy%s' % (testFile,mymodel, os.path.basename(trainFile)[:4])) :
       continue
     if mymodel == 'Benchmark':
-      cmd = './predictModel -m LogisticRegressionL1 -tm ./%s_trained%s -train %s -test %s -o ./%s_result%sBy%s' \
+      cmd = './predictModel -m LogisticRegressionL1 -tm %s_trained%s -train %s -test %s -o %s_result%sBy%s' \
         % (trainFile, mymodel, trainFile+'_Benchmark', testFile+'_Benchmark', testFile, \
             mymodel, os.path.basename(trainFile)[:4])
     else :
       modelname = mymodel.split('_')[0]
-      cmd = './predictModel -m %s -tm ./%s_trained%s -train %s -test %s -o ./%s_result%sBy%s' \
+      cmd = './predictModel -m %s -tm %s_trained%s -train %s -test %s -o %s_result%sBy%s' \
         % (modelname, trainFile, mymodel, trainFile, testFile, \
           testFile, mymodel, os.path.basename(trainFile)[:4])
 
@@ -333,7 +333,7 @@ def collectResults(trainFile, testFile, model) :
   # then read result
   # print 'models is ', model
   for mymodel in model :
-    tmpResultFile = './%s_result%sBy%s' % (testFile, mymodel, os.path.basename(trainFile)[:4])
+    tmpResultFile = '%s_result%sBy%s' % (testFile, mymodel, os.path.basename(trainFile)[:4])
     print ' -- collecting resutls for %s' % tmpResultFile
     file = open(tmpResultFile, "r")
     if re.match(r"LogisticRegression|Benchmark", mymodel) :
