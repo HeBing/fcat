@@ -17,16 +17,15 @@ If you have any questions on installation and usage of `fcat`, feel free to cont
 #### Quick Start
 
 * Change working directory to `src/`
-* Run `python modelAveragingWrapper.py`
-
+* Run `python fcat.py`
 
 #### Other requirements:
-* `fcat` require python is installed (2.6.6 or higher) on the machine
-* `fcat` depends on `boost` (1.55.0 or higher)
+* `fcat` require python is installed (2.6.6 or higher) on the machine.
+* `fcat` depends on `boost` (1.55.0 or higher); click [here](#boost) to see more help on installing boost.
 * Currently, `fcat` only supports linux/unix.
 
 #### How to use
-After installation, four exectuable programs will appear in `\src`: `countCoverage`, `extractFeature`, `trainModel`, `predictModel`. In command line, type the program with no arguments to see options:
+After installation, four exectuable programs will appear in `\src`: `countCoverage`, `extractFeature`, `trainModel`, `predictModel` as well as `fcat.py`. In command line, type the program with no arguments to see options:
 
 * `countCoverage` count read coverage based on bam files. It takes in a file containing a list of bam file names (with full path) and a parameter setting file that sets the resolution and single-end/paired-end of the bam files. 
 
@@ -93,3 +92,7 @@ max=100
 #### Note:
 * `fcat` uses codes from [`liblinear`](http://www.csie.ntu.edu.tw/~cjlin/liblinear/) and [`rt-rank`](https://sites.google.com/site/rtranking/) projects.
 * Currently, `fcat` only works under linux/unix.
+
+#### <a name="boost">boost installation</a>
+* Please first check whether `boost` has been installed on your system. You can use `locate boost` on your cmd. If found, 
+* If `boost` is not installed, follow the instructions [here](http://www.boost.org/) to download and install it. 
