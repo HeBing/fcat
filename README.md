@@ -12,7 +12,7 @@ If you have any questions on installation and usage of `fcat`, feel free to cont
 #### How to install
 
 * Step 1: Download the whole directory
-* Step 2: Type 'make'
+* Step 2: Type `make`
 
 #### Quick Start
 
@@ -94,5 +94,5 @@ max=100
 * Currently, `fcat` only works under linux/unix.
 
 #### <a name="boost">boost installation</a>
-* Please first check whether `boost` has been installed on your system. You can use `locate boost` on your cmd. If found, 
+* Please first check whether `boost` has been installed on your system. You can use `locate boost` on your cmd. If found, please update path to `boost` in `./rf-rank_1.5/cart/Makefile`
 * If `boost` is not installed, follow the instructions [here](http://www.boost.org/) to download and install it. 
