@@ -125,6 +125,9 @@ def crossValidated(model, file, fold):
       trainFileTmp = file+'_cv'+str(k+1)+'_train'
       testFileTmp = file+'_cv'+str(k+1)+'_test'
       print '- training %s using %s' % (mymodel, trainFileTmp)
+      tmpResultFile = '%s_trained%s' % (trainFileTmp, mymodel)
+      if os.path.isfile(tmpResultFile) :
+	      continue
       if mymodel == 'Benchmark' : 
         cmd = './trainModel -m LogisticRegressionL1 -c 10000 -t %s -o %s_trained%s' \
         % (trainFileTmp+'_Benchmark', trainFileTmp, mymodel)
@@ -385,7 +388,7 @@ def getVotingResults(result, weights, top) :
   if len(result) != len(weights) :
     print "len of result is not equal to len of weights"
     return -1
-  topWeights = sorted(weights, reverse = True)[:3]
+  topWeights = sorted(weights, reverse = True)[:1]
   print 'topWeights is:', topWeights
   for i in range(len(result[0])) :
     tmp = 0.0
@@ -420,6 +423,8 @@ def writeFormatted(ys, result, outputFile) :
 # include m controls in trainFile
 #---
 def reserveControl(trainFile, m) :
+  if os.path.isfile(trainFile + '_train'):
+    return 0
   f = open(trainFile, 'r')
   f_train = open(trainFile + '_train', 'w')
   f_ctrl = open(trainFile + '_control', 'w')
