@@ -161,7 +161,7 @@ int predictModel(char *method, char *trainedModel, char *trainFile, char *testFi
     sprintf(tmpStr, "%d ", (int)((col-1)*0.1));
     strcat(cmd, tmpStr);
 
-    strcat(cmd, "100 8 > ");   
+    strcat(cmd, "100 1 > ");   
   }
   else {
     strcpy(cmd, "../liblinear-1.96/predict -b 1 ");

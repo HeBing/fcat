@@ -132,9 +132,6 @@ int trainModel(char *method, float c, char *trainingFile, char *outputFile) {
 		strcat(cmd, trainingFile);
 		strcat(cmd, " ");
 	}
-	/* else if (strcmp(method, "Benchmark") == 0) {
-		strcpy(cmd, "../liblinear-1.96/train -s 6 ");
-	} */
 	else {
 		printf("Cannot find method %s. Fitting default model SVM. \n", method);
 		strcpy(cmd, "../liblinear-1.96/train -s 1 ");
@@ -170,7 +167,9 @@ int trainModel(char *method, float c, char *trainingFile, char *outputFile) {
 		sprintf(tmpStr, "%d ", (int)((col-1)*0.1));
 
 		strcat(cmd, tmpStr);
-		strcat(cmd, "100 8 > ");	
+    // last cmd arg is # of threads
+    // changed from 8 to 1
+		strcat(cmd, "100 1 > ");	
 	}
 
 	/* if(strcmp(method, "Benchmark") == 0) {
