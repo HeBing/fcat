@@ -11,8 +11,6 @@
 # @NOTE: only top 3 models are averaged
 # @NOTE: pass weights and control prediction
 #   to R too
-# @NOTE: R is too slow, only using it for plot
-#   add the other functions here
 #-----------------------------------------
 import shlex, subprocess, sys
 import os.path, re, time
@@ -760,16 +758,6 @@ def main(argv) :
  
   f.close()
   
-  # plot
-  ## R script: plot 3 figures
-  ## ROC, TPR~estFDR, TPR~trueFDR
-  print '------------------------------------'
-  print "- ploting "
-  cmd = 'Rscript plot.R %s %s %s %s %s' % (outputFileROC, outputFileEstFDR, \
-      outputFileTrueFDR, ','.join(model), repr(top))
-  print '- cmd is %s' % cmd
-  subprocess.call(shlex.split(cmd))
-
   return 0
 
 if __name__ == '__main__':
