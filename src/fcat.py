@@ -11,6 +11,8 @@
 # @NOTE: only top 3 models are averaged
 # @NOTE: pass weights and control prediction
 #   to R too
+# @NOTE: R is too slow, only using it for plot
+#   add the other functions here
 #-----------------------------------------
 import shlex, subprocess, sys
 import os.path, re, time
@@ -476,7 +478,7 @@ def doInference(Y, pred, ctrl):
   # x axis for each of 3 plots
   FPR = []
   estFDR = []
-  ## trueFDR = []
+  trueFDR = []
 
   # auc summary for each plot
   auc = []
@@ -515,10 +517,8 @@ def doInference(Y, pred, ctrl):
     sens.append( float(sumTmpY) / float(allP) )
     # FPR
     FPR.append( float((lenTmpY-sumTmpY)) / float(allN) )
-    """
     # true FDR
     trueFDR.append( float(lenTmpY-sumTmpY) / float(len(tmpY)) )
-    """
     # est FDR
     tmpEstFDR = uniquePvalue[i] * float(all) / ( float(all - tmpIdx) )
     if i == 0: 
@@ -530,23 +530,21 @@ def doInference(Y, pred, ctrl):
   # add last values
   sens.append( 0.0 )
   FPR.append( 0.0 )
-  ## trueFDR.append( 0.0 )
+  trueFDR.append( 0.0 )
   estFDR.append( 0.0 )
 
   # make sure true FDR is decreasing
   ##  need adjust from last FDR to first FDR
-  """
   for i in range(1,len(trueFDR)) :
     if trueFDR[i-1] < trueFDR[i] :
       trueFDR[i] = trueFDR[i-1]
-  """
 
   # adjustPvalue has a problem, rank (k) is discrete
   uniqueEstFDR = uniqueValueIdx(uniquePvalue)
 
 
   # return
-  return (sens, FPR, estFDR)
+  return (sens, FPR, estFDR, trueFDR)
 
 def calcPvalue(value, ctrl) :
   return float(sum(( int(a >= value) for a in ctrl )))/float(len(ctrl))
@@ -628,8 +626,8 @@ def main(argv) :
   model.append('voting')
 
   tmpmodel = list(set([ a.split('_')[0] for a in model]))
-  # outputFile = ''.join( [ trainFile, \
-  #    os.path.basename(testFile),','.join(tmpmodel), '_result'] )
+  outputFile = ''.join( [ trainFile, \
+      os.path.basename(testFile),','.join(tmpmodel), '_result'] )
 
   writeFormatted(testYs, testResult, outputFile)
   
@@ -642,18 +640,15 @@ def main(argv) :
   ## est FDR
   estFDR = []
   estFDRAUC = []
-
-  """
   ## true FDR
   trueFDR = []
   trueFDRAUC = []
-  """
 
   for i in range(len(testResult)) :
     print '--------------------------------------'
     print '- doing Inference for ', model[i]
 
-    (sensi, FPRi, estFDRi) = doInference(testYs, testResult[i], controlResult[i])
+    (sensi, FPRi, estFDRi, trueFDRi) = doInference(testYs, testResult[i], controlResult[i])
 
     # test results ROC, plot1
     testAUC.append(calcAUC(sensi,FPRi))
@@ -667,13 +662,11 @@ def main(argv) :
     estFDR.append(sensi)
     estFDR.append(estFDRi)
 
-    """
     # test results, trueFDR, plot 3
     trueFDRAUC.append(calcAUC(sensi,trueFDRi))
     print "- %s's true FDR auc is %f" % (model[i], trueFDRAUC[-1])
     trueFDR.append(sensi)
     trueFDR.append(trueFDRi)
-    """
 
   elapsed = time.time() - start
   print 'elapsed time is ', elapsed
@@ -727,7 +720,6 @@ def main(argv) :
 
   f.close()
 
-  """
   # write true FDR
   outputFileTrueFDR = ''.join( [ trainFile, \
       os.path.basename(testFile),','.join(tmpmodel), '_trueFDRResult'] )
@@ -752,7 +744,7 @@ def main(argv) :
           f.write('NA'+' ')
 
   f.close()
-  """
+
   # write AUC
   outputFileAUC = ''.join( [ trainFile, \
       os.path.basename(testFile),','.join(tmpmodel), '_AUC'] )
@@ -763,13 +755,21 @@ def main(argv) :
   f.write('\n')
   f.write(' '.join([ repr(a) for a in estFDRAUC ]))
   f.write('\n')
-  """ 
   f.write(' '.join([ repr(a) for a in trueFDRAUC ]))
   f.write('\n')
-  """
-
+ 
   f.close()
   
+  # plot
+  ## R script: plot 3 figures
+  ## ROC, TPR~estFDR, TPR~trueFDR
+  print '------------------------------------'
+  print "- ploting "
+  cmd = 'Rscript plot.R %s %s %s %s %s' % (outputFileROC, outputFileEstFDR, \
+      outputFileTrueFDR, ','.join(model), repr(top))
+  print '- cmd is %s' % cmd
+  subprocess.call(shlex.split(cmd))
+
   return 0
 
 if __name__ == '__main__':
