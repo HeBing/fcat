@@ -3,7 +3,7 @@
 #include "string.h"
 #include "stdint.h"
 #include "math.h"
-#include "fcarLib.h"
+#include "fcatLib.h"
 #include "sam.h"
 #include "bam.h"
 
