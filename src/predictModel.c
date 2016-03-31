@@ -1,7 +1,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#include "fcarLib.h"
+#include "fcatLib.h"
 
 int menu_predictModel(int argc, char **argv);
 int predictModel(char *method, char *trainingFile, char *testingFile, char *trainedModel, char *outputFile);

@@ -1,7 +1,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#include "fcarLib.h"
+#include "fcatLib.h"
 
 int menu_trainModel(int argc, char **argv);
 int trainModel(char *method, float c, char *trainingFile, char *outputFile); 

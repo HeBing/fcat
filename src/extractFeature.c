@@ -1,7 +1,7 @@
 #include "stdlib.h"
 #include "stdio.h"
 #include "string.h"
-#include "fcarLib.h"
+#include "fcatLib.h"
 
 int menu_extractFeature(int argc, char **argv);
 
