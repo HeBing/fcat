@@ -21,7 +21,6 @@ If you have any questions on installation and usage of `fcat`, feel free to cont
 
 #### Other requirements:
 * `fcat` require python is installed (2.6.6 or higher) on the machine.
-* `fcat` depends on `boost` (1.55.0 or higher); click [here](#boost) to see more help on installing boost.
 * Currently, `fcat` only supports linux/unix.
 
 #### How to use
@@ -93,6 +92,3 @@ max=100
 * `fcat` uses codes from [`liblinear`](http://www.csie.ntu.edu.tw/~cjlin/liblinear/) and [`rt-rank`](https://sites.google.com/site/rtranking/) projects.
 * Currently, `fcat` only works under linux/unix.
 
-#### <a name="boost">boost installation</a>
-* Please first check whether `boost` has been installed on your system. You can use `locate boost` on your cmd. If found, please update path to `boost` in `./rf-rank_1.5/cart/Makefile`
-* If `boost` is not installed, follow the instructions [here](http://www.boost.org/) to download and install it. 
