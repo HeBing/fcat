@@ -17,7 +17,21 @@ If you have any questions on installation and usage of `fcat`, feel free to cont
 #### Quick Start
 
 * Change working directory to `src/`
-* Run `python fcat.py`
+* Open `demo.sh` and copy the command you need to command line to run (see below)
+
+```bash
+# count read coverage for bins
+./countCoverage -i ./data/bamFilesList -p ./data/param
+
+# extract bin-wise log2 coverage for training genomic region
+./extractFeature -i ./data/coverageFilesList -t ./data/trainingCMYC.txt -o feature_trainingCMYC.txt -p param
+
+# extract bin-wise log2 coverage for testing genomic region
+./extractFeature -i ./data/coverageFilesList -t ./data/testingGABP.txt -o feature_testingGABP.txt -p ./data/param
+
+# make prediction with fcat
+python fcat.py -model RandomForest,LogisticRegressionL1 -train ./data/feature_trainingCMYC.txt_5_1000 -test ./data/feature_trainingGABP.txt_5_1000 -output ./data/finalResult.txt
+```
 
 #### Other requirements:
 * `fcat` require python is installed (2.6.6 or higher) on the machine.
