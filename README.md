@@ -17,7 +17,10 @@ If you have any questions on installation and usage of `fcat`, feel free to cont
 #### Quick Start
 
 * Change working directory to `src/`
-* Open `demo.sh` and copy the command you need to command line to run (see below)
+* Open `src/demo.sh` and copy the command you need to command line to run (see below)
+
+#### An Example
+Below is a simple example where we predicting binding sites of GABP based on models trained from CMYCin `src/demo.sh`:
 
 ```bash
 # count read coverage for bins
