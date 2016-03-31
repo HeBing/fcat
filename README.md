@@ -11,8 +11,8 @@ If you have any questions on installation and usage of `fcat`, feel free to cont
 
 #### How to install
 
-* Step 1: Download the whole directory
-* Step 2: Type `make`
+* Step 1: Download the zipped repo and unzip `unzip fcat-master.zip`;
+* Step 2: Change working directory to `fcat-master` and type `make` on the command line.
 
 #### Quick Start
 
