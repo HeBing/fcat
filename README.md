@@ -38,6 +38,7 @@ python fcat.py -model RandomForest,LogisticRegressionL1 -train ./data/feature_tr
 #### Other requirements:
 * `fcat` require python is installed (2.6.6 or higher) on the machine.
 * Currently, `fcat` only supports linux/unix.
+* `fcat` require `gcc/g++` 4.4.7 or higher.
 
 #### How to use
 After installation, four exectuable programs will appear in `\src`: `countCoverage`, `extractFeature`, `trainModel`, `predictModel` as well as `fcat.py`. In command line, type the program with no arguments to see options:
