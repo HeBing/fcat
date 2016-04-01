@@ -1,13 +1,12 @@
 # fcat
 
 #### Introduction
-`fcat` is short for *flexible classification toolbox fo high throughput sequencing data*. 
+`fcat` is a *flexible classification toolbox fo high throughput sequencing data*. 
 
-Simply put, `fcat` take bam files and a list genomic regions of interest as input, train models with signals in the bam files around those given regions, and predict biological activities of interest genomewide. 
+Simply put, `fcat` is a supervised learning framework for predicting regulatory acitivties on the genome. `fcat` takes bam files and a list of training genomic regions (for which we know the truth) as input, train models with signals in the bam files around those given regions, and predict biological activities of interest genomewide with the trained models. 
+Currently the models include: logistic regression with L1 penalty (Lasso regression), logistic regression with L2 penalty (Ridge regression), and random forest. A unique feature of `fcat` is that it provides an ensemble learning method that integrates prediction results from individual models to augment the final prediction.
 
-Currently the models include: logistic regression with L1 penalty (Lasso regression), logistic regression with L2 penalty (Ridge regression), and random forest. Model averaging utility is also provided that averages predicted results from different models.
-
-If you have any questions on installation and usage of `fcat`, feel free to contact me at bhe3@jhu.edu.
+If you have any questions on installation and usage of `fcat`, feel free to contact me at bhe3@jhu.edu. If there are error messages, please send those messages to me. Thanks!
 
 #### How to install
 
@@ -17,19 +16,30 @@ If you have any questions on installation and usage of `fcat`, feel free to cont
 #### Quick Start
 
 * Change working directory to `src/`
-* Open `src/demo.sh` and copy the command you need to command line to run (see below)
+* Open `src/demo.sh` and copy the command you need to command line to run (see a simple example below)
 
 #### An Example
-Below is a simple example where we predicting binding sites of GABP based on models trained from CMYCin `src/demo.sh`:
+Below is a simple example where we predict binding sites of GABP based on models trained from CMYC in `src/demo.sh`:
+
+* First, we count the read coverage for bins with specified resolution from the bam files. We included two (truncated) bam files in `./src/data/`. `./countCoverage` will produce a binary file containing the coverage information. 
 
 ```bash
 # count read coverage for bins
 ## here bam files are truncated bam files
 ./countCoverage -i ./data/bamFilesList -p ./data/param
+```
+* Second, we extract coverage as features for the given training genomic regions `trainingCMYC.txt` as well as testing regions `testingGABP.txt`.
+
+```bash
 # extract bin-wise log2 coverage for training genomic region
 ./extractFeature -i ./data/coverageFilesList -t ./data/trainingCMYC.txt -o ./data/feature_trainingCMYC_small.txt -p ./data/param
 # extract bin-wise log2 coverage for testing genomic region
 ./extractFeature -i ./data/coverageFilesList -t ./data/testingGABP.txt -o ./data/feature_testingGABP_small.txt -p ./data/param
+```
+
+* Third, we make predictions using fcat. Use `fcat.py` to specify what individual model you want. 
+
+```bash
 # make prediction with fcat 
 ## using features extracted from full bam files
 python fcat.py -model RandomForest,LogisticRegressionL1 -train ./data/feature_trainingCMYC_full.txt_5_1000 -test ./data/feature_testingGABP_full.txt_5_1000 -output ./data/finalResult.txt
