@@ -88,6 +88,9 @@ def splitFileCV(file, fold):
   # file_cv1_test, file_cv1_train
   # file_cv2_test, file_cv2_train
   # default output dir is the dir where file is in
+  # print '----------------------------------------'
+  # print '- spliting files for cross validation'
+  # print '----------------------------------------'
   f = open(file, 'r')
   lines = f.readlines()
   f.close()
@@ -121,7 +124,7 @@ def crossValidated(model, file, fold):
     for k in range(fold):
       trainFileTmp = file+'_cv'+str(k+1)+'_train'
       testFileTmp = file+'_cv'+str(k+1)+'_test'
-      # print '- training %s using %s' % (mymodel, trainFileTmp)
+      print '- training %s using %s' % (mymodel, trainFileTmp)
       tmpResultFile = '%s_trained%s' % (trainFileTmp, mymodel)
       if os.path.isfile(tmpResultFile) :
 	      continue
@@ -144,15 +147,16 @@ def crossValidated(model, file, fold):
       myargs = shlex.split(cmd);
       start = time.time()
       p = subprocess.Popen(myargs, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-      """
       for x in p.stdout.read().split('\n') :
         if re.search(r"Accuracy|nonzero", x) :
-          print x
+          # print x
+          continue
       for x in p.stderr.read().split('\n') :
         if re.search(r"Accuracy|core", x) :
-          print x
+          # print x
+          continue
       elapsed = time.time() - start
-      print 'elapsed time: %.8f' % elapsed """
+      # print 'elapsed time: %.8f' % elapsed
 
   # now prediction
   for k in range(fold):
@@ -233,6 +237,7 @@ def addDiffPenalty(model,cs) :
 #---
 def trainModels(trainFile, testFile, model) :
   for mymodel in model :
+    # print '------------------------------------'
     print '- training %s using %s' % (mymodel, trainFile)
 
     if os.path.isfile('%s_trained%s' % (trainFile, mymodel)) :
@@ -245,6 +250,7 @@ def trainModels(trainFile, testFile, model) :
         (mymodel, trainFile, trainFile, mymodel)
     else : # model with c value added
       (modelname, modelc) = mymodel.split('_')
+      # print '-- with c = %s' % modelc
       cmd = './trainModel -m %s -c %s -t %s -o %s_trained%s' %  \
         (modelname, modelc, trainFile, trainFile, mymodel)
 
@@ -254,21 +260,22 @@ def trainModels(trainFile, testFile, model) :
     myargs = shlex.split(cmd);
     start = time.time()
     p = subprocess.Popen(myargs, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    """ for x in p.stdout.read().split('\n') :
+    for x in p.stdout.read().split('\n') :
       if re.search(r"Accuracy|nonzero", x) :
-        print x
+        #print x
+        continue
     for x in p.stderr.read().split('\n') :
        if re.search(r"Accuracy|core", x) :
-         print x
+         #print x
+         continue
     elapsed = time.time() - start
-    print 'elapsed time: %.8f' % elapsed """
+    # print 'elapsed time: %.8f' % elapsed
 
 #---
 # predictModels
 #---
 def predictModels(trainFile, testFile, model):
   for mymodel in model :
-    
     print '- predicting %s using %s' % (testFile, mymodel)
     if os.path.isfile('%s_result%sBy%s' % (testFile,mymodel, os.path.basename(trainFile)[:4])) :
       continue
@@ -288,27 +295,35 @@ def predictModels(trainFile, testFile, model):
     myargs = shlex.split(cmd)
     start = time.time()
     p = subprocess.Popen(myargs, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-    """ for x in p.stdout.read().split('\n') :
+    for x in p.stdout.read().split('\n') :
       if re.search(r"Accuracy", x) :
-        print x  
+        # print x  
+        continue
     for x in p.stderr.read().split('\n') :
       if re.search(r"Accuracy|core", x) :
-        print x
+        # print x
+        continue
     elapsed = time.time() - start
-    print 'elapsed time: %.8f' % elapsed """
+    # print 'elapsed time: %.8f' % elapsed
 
 #---
 # collectResults
 #---
 def collectResults(trainFile, testFile, model) :
   
+  # print '------------------------------------'
+  # print '- collecting results for %s ' % testFile
+
   # first read ys
   p = subprocess.Popen(shlex.split('cut -f 1 -d\  %s' % testFile),stdout=subprocess.PIPE)
   ys = [ int(a) for a in p.stdout.read().split('\n') if len(a) > 0 ] # last element is ''
   
   result = []
+  # then read result
+  # print 'models is ', model
   for mymodel in model :
     tmpResultFile = '%s_result%sBy%s' % (testFile, mymodel, os.path.basename(trainFile)[:4])
+    # print ' -- collecting resutls for %s' % tmpResultFile
     file = open(tmpResultFile, "r")
     if re.match(r"LogisticRegression|Benchmark", mymodel) :
       tmp = file.read().splitlines()
@@ -343,6 +358,8 @@ def err(prediction, truth) :
 # getVotingWeights
 #---
 def getVotingWeights(model, file, fold = 3) :
+  print '-------------------------------------'
+  print ' calculating weights '
   splitFileCV(file, fold)
   weights = crossValidated(model, file, fold)
   return weights
@@ -539,14 +556,17 @@ def main(argv) :
   addBenchmark(testFile, k)
 
   # add penalty for penalty-based method
-  cs = [0.001, 0.01, 0.10]
+  cs = [0.001, 0.01]
   addDiffPenalty(model, cs)
 
-  
+  print '---------------------------------------------'
+  print '- training models '
   # train model
   trainModels(trainFile + '_train', testFile,  model)
 
   # predict model
+  print '----------------------------------------'
+  print '- predicting with models '
   ## predict train to get error
   predictModels(trainFile + '_train', trainFile + '_train', model) 
   ## predict train control to get inference
@@ -603,33 +623,34 @@ def main(argv) :
   trueFDR = []
   trueFDRAUC = []
 
+  print '----------------------------------------------'
+  print '- doing inference '
   for i in range(len(testResult)) :
-    print '--------------------------------------'
-    print '- doing Inference for ', model[i]
 
     (sensi, FPRi, estFDRi, trueFDRi) = doInference(testYs, testResult[i], controlResult[i])
 
     # test results ROC, plot1
     testAUC.append(calcAUC(sensi,FPRi))
-    # print "- %s's auc is %f" % (model[i], testAUC[-1])
     testROC.append(sensi)
     testROC.append(FPRi)
 
     # test results, estFDR, plot2
     estFDRAUC.append(calcAUC(sensi,estFDRi))
-    # print "- %s's est FDR auc is %f" % (model[i], estFDRAUC[-1])
     estFDR.append(sensi)
     estFDR.append(estFDRi)
 
     # test results, trueFDR, plot 3
     trueFDRAUC.append(calcAUC(sensi,trueFDRi))
-    # print "- %s's true FDR auc is %f" % (model[i], trueFDRAUC[-1])
     trueFDR.append(sensi)
     trueFDR.append(trueFDRi)
 
   elapsed = time.time() - start
 
   # write ROC
+  print '---------------------------------------------'
+  print '- writing to output '
+  print '- ', outputFile
+  print '---------------------------------------------'
   outputFileROC = ''.join( [ trainFile, \
       os.path.basename(testFile),','.join(tmpmodel), '_rocResult'] )
 
