@@ -15,7 +15,7 @@
 #   add the other functions here
 #-----------------------------------------
 import shlex, subprocess, sys
-import os.path, re, time
+import os, re, time
 import collections
 import createBenchmarkFeature as bm
 import math
@@ -541,6 +541,14 @@ def main(argv) :
     (model, trainFile, testFile, outputFile, k) = menu(argv)
   else :
     sys.exit(-1)
+  
+  # newly added!
+  print '------------------------------------------'
+  print '- Add to LD_LIBRARY_PATH'
+
+  print 'original path:', os.environ['LD_LIBRARY_PATH']
+  os.environ['LD_LIBRARY_PATH'] += ":" + '../rt-rank_1.5/cart/boost/lib'
+  print 'now path is ', os.environ['LD_LIBRARY_PATH']
 
   # reserve control for inference
   ## split train into train+'_train'
