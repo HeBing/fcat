@@ -597,7 +597,7 @@ def main(argv) :
   # write ROC
   print '---------------------------------------------'
   print '- writing to output '
-  print '- ', outputFile
+  print '- ', outputFileResult
   print '---------------------------------------------'
   # outputFileROC = ''.join( [ trainFile, \
   #    os.path.basename(testFile),','.join(tmpmodel), '_rocResult'] )
