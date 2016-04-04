@@ -372,7 +372,7 @@ def getVotingResults(result, weights, top) :
   if len(result) != len(weights) :
     print "len of result is not equal to len of weights"
     return -1
-  topWeights = sorted(weights, reverse = True)[:1]
+  topWeights = sorted(weights, reverse = True)[:2]
   for i in range(len(result[0])) :
     tmp = 0.0
     for j in range(len(weights)) :
