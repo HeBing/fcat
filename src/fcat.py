@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+#----------------------------------------
+# model stacking
+# @NOTE: this script uses
+#    a linear combination
+#    to integrate results from 
+#    base learner
+# @NOTE: benchmark is automatically added
+# @NOTE: train data's control is automaticall
+#   extracted and used for inference
+#-----------------------------------------
 import shlex, subprocess, sys
 import os, re, time
 import collections
@@ -23,7 +33,7 @@ def menu(argv) :
     print "/*----------------------------------------*/"
     return -1
 
-  idx = 1
+  idx = 1 # argv[0] is the script name
   modelOK = 0; trainOK = 0; testOK = 0; outOK = 0;
 
   model = []
@@ -71,15 +81,22 @@ def menu(argv) :
   
   
 #-----
-# functions for cv weights
+# functions for cross validation
 #---
 
 def splitFileCV(file, fold):
+  # for train files, split it into fold training files and testing files
+  # in total 4 pairs of training and testing files.
+  # use name convention to communicate file names
+  # file_cv1_test, file_cv1_train
+  # file_cv2_test, file_cv2_train
+  # default output dir is the dir where file is in
   f = open(file, 'r')
   lines = f.readlines()
   f.close()
 
   for i in range(fold):
+    # print '- spliting for fold %d' % i
     if os.path.isfile(file + '_cv' + repr(i+1) + '_test') :
       continue
     f1 = open(file + '_cv' + repr(i+1) + '_test', 'w')
@@ -87,7 +104,7 @@ def splitFileCV(file, fold):
     f1.close()
 
     f2 = open(file + '_cv' + repr(i+1) + '_train', 'w')
-    lines2 = lines[:] 
+    lines2 = lines[:] # copy the list, instead of copying the ref
     for l in lines[i::fold] :
       lines2.remove(l)
     f2.write(''.join( lines2 ))
@@ -117,13 +134,12 @@ def crossValidated(model, file, fold):
       elif mymodel == 'RandomForest' :
         cmd = './trainModel -m %s -c 1 -t %s -o %s_trained%s' % \
           (mymodel, trainFileTmp, trainFileTmp, mymodel)
-      else : 
+      else : # liblinear model
         (modelname, modelc) = mymodel.split('_')
         cmd = './trainModel -m %s -c %s -t %s -o %s_trained%s' %  \
           (modelname, modelc, trainFileTmp, trainFileTmp, mymodel)
 
-
-      #  run model
+      # train models
       myargs = shlex.split(cmd);
       start = time.time()
       p = subprocess.Popen(myargs, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
@@ -133,6 +149,7 @@ def crossValidated(model, file, fold):
       for x in p.stderr.read().split('\n') :
         if re.search(r"Accuracy|core", x) :
           continue
+      elapsed = time.time() - start
 
   # make prediction
   for k in range(fold):
@@ -140,13 +157,15 @@ def crossValidated(model, file, fold):
     testFileTmp = file+'_cv'+str(k+1)+'_test'
     predictModels(trainFileTmp, testFileTmp,  model)
 	
+  # read result for eaech cv
   errs = []
   for k in range(fold):
     trainFileTmp = file+'_cv'+str(k+1)+'_train'
     testFileTmp = file+'_cv'+str(k+1)+'_test'
     result = []
+    # first read ys
     p = subprocess.Popen(shlex.split('cut -f 1 -d\  %s' % testFileTmp),stdout=subprocess.PIPE)
-    ys = [ int(a) for a in p.stdout.read().split('\n') if len(a) > 0 ] 
+    ys = [ int(a) for a in p.stdout.read().split('\n') if len(a) > 0 ] # last element is ''
 
     for mymodel in model:
       tmpResultFile = '%s_result%sBy%s' % (testFileTmp, mymodel, os.path.basename(trainFileTmp)[:4])
@@ -195,12 +214,12 @@ def addDiffPenalty(model,cs) :
   tmpModel = []
   rmModel = []
   for m in model :
-    if m != 'RandomForest' and m != 'Benchmark' : 
+    if m != 'RandomForest' and m != 'Benchmark' : # rf is the only model without c
       tmpModel += [ m+'_'+repr(c) for c in cs ]
       rmModel.append(m)
 
   for a in rmModel :
-    model.remove(a) 
+    model.remove(a) # remove
 
   model.extend(tmpModel)
 
@@ -221,12 +240,11 @@ def trainModels(trainFile, testFile, model) :
     elif mymodel == 'RandomForest' :
       cmd = './trainModel -m %s -c 1 -t %s -o %s_trained%s' % \
         (mymodel, trainFile, trainFile, mymodel)
-    else : 
+    else : # model with c value added
       (modelname, modelc) = mymodel.split('_')
       # print '-- with c = %s' % modelc
       cmd = './trainModel -m %s -c %s -t %s -o %s_trained%s' %  \
         (modelname, modelc, trainFile, trainFile, mymodel)
-
 
     # run model
     myargs = shlex.split(cmd);
@@ -239,6 +257,7 @@ def trainModels(trainFile, testFile, model) :
        if re.search(r"Accuracy|core", x) :
          continue
     elapsed = time.time() - start
+    # print 'elapsed time: %.8f' % elapsed
 
 #---
 # predictModels
@@ -258,6 +277,7 @@ def predictModels(trainFile, testFile, model):
         % (modelname, trainFile, mymodel, trainFile, testFile, \
           testFile, mymodel, os.path.basename(trainFile)[:4])
 
+    # print '- cmd is %s' % cmd
 
     # run predict model
     myargs = shlex.split(cmd)
@@ -276,10 +296,13 @@ def predictModels(trainFile, testFile, model):
 #---
 def collectResults(trainFile, testFile, model) :
   
+
+  # read ys
   p = subprocess.Popen(shlex.split('cut -f 1 -d\  %s' % testFile),stdout=subprocess.PIPE)
-  ys = [ int(a) for a in p.stdout.read().split('\n') if len(a) > 0 ] 
+  ys = [ int(a) for a in p.stdout.read().split('\n') if len(a) > 0 ] # last element is ''
   
   result = []
+  # read result
   for mymodel in model :
     tmpResultFile = '%s_result%sBy%s' % (testFile, mymodel, os.path.basename(trainFile)[:4])
     file = open(tmpResultFile, "r")
@@ -382,7 +405,7 @@ def reserveControl(trainFile, m) :
 
 
 #----------------------------------
-# AUC
+#  AUC
 #-----------------------------------
 def calcAUC(y,x) :
   if len(x) != len(y):
@@ -420,7 +443,6 @@ def doInference(Y, pred, ctrl):
   uniquePred = sorted(list(set(pred)))
   uniquePredIdx = uniqueValueIdx(predSorted)
   uniquePvalue = [ calcPvalue(a,ctrl) for a in uniquePred ]   
-  tmpMin = 0.0
 
   # inference
   for i in range(len(uniquePred)) :
@@ -444,23 +466,29 @@ def doInference(Y, pred, ctrl):
       tmpMin = tmpEstFDR
     estFDR.append( min(tmpMin, 1.0) )
 
-  # add last values
   sens.append( 0.0 )
   FPR.append( 0.0 )
   trueFDR.append( 0.0 )
   estFDR.append( 0.0 )
 
+  # make sure true FDR is decreasing
   for i in range(1,len(trueFDR)) :
     if trueFDR[i-1] < trueFDR[i] :
       trueFDR[i] = trueFDR[i-1]
 
+  # adjustPvalue has a problem, rank (k) is discrete
   uniqueEstFDR = uniqueValueIdx(uniquePvalue)
+
+
+  # return
   return (sens, FPR, estFDR, trueFDR)
 
 def calcPvalue(value, ctrl) :
   return float(sum(( int(a >= value) for a in ctrl )))/float(len(ctrl))
 
+#---
 # main
+#---
 def main(argv) :
 
   if menu(argv) != -1:
@@ -470,35 +498,33 @@ def main(argv) :
   
 
 
+  # reserve control for inference
   m = 100
   reserveControl(trainFile, m)
 
+  # add benchmark
   model.append('Benchmark')
   addBenchmark(trainFile + '_train', k)
   addBenchmark(trainFile + '_control', k)
   addBenchmark(testFile, k)
 
+  # add penalty for penalty-based method
   cs = [0.001, 0.01]
   addDiffPenalty(model, cs)
 
   print '---------------------------------------------'
   print '- training models '
-  # train model
   trainModels(trainFile + '_train', testFile,  model)
 
   # predict model
   print '----------------------------------------'
   print '- predicting with models '
-  ## predict train to get error
   predictModels(trainFile + '_train', trainFile + '_train', model) 
-  ## predict train control to get inference
   predictModels(trainFile + '_train', trainFile + '_control', model) 
-  ## predict test
   predictModels(trainFile + '_train', testFile, model)
 
   # collect results
   start = time.time()
-  ## collect train
   (trainYs, trainResult) = collectResults(trainFile + '_train', \
       trainFile + '_train', model) 
   elapsed = time.time() - start
@@ -529,8 +555,8 @@ def main(argv) :
   tmpmodel = list(set([ a.split('_')[0] for a in model]))
   # outputFile = ''.join( [ trainFile, \
   #    os.path.basename(testFile),','.join(tmpmodel), '_result'] )
-
-  writeFormatted(testYs, testResult, outputFile)
+  outputFileResult = outputFile + '_result'
+  writeFormatted(testYs, testResult, outputFileResult)
   
   # conduct inference
   start = time.time()
@@ -573,9 +599,9 @@ def main(argv) :
   print '- writing to output '
   print '- ', outputFile
   print '---------------------------------------------'
-  outputFileROC = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_rocResult'] )
-
+  # outputFileROC = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_rocResult'] )
+  outputFileROC = outputFile + '_rocResult'
   f = open(outputFileROC, 'w')
 
   lenROC = [ len(a) for a in testROC ]
@@ -595,9 +621,9 @@ def main(argv) :
   f.close()
 
   # write est FDR
-  outputFileEstFDR = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_estFDRResult'] )
-
+  # outputFileEstFDR = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_estFDRResult'] )
+  outputFileEstFDR = outputFile + '_estFDRResult'
   f = open(outputFileEstFDR, 'w')
 
   lenEstFDR = [ len(a) for a in estFDR ]
@@ -618,9 +644,9 @@ def main(argv) :
   f.close()
 
   # write true FDR
-  outputFileTrueFDR = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_trueFDRResult'] )
-
+  # outputFileTrueFDR = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_trueFDRResult'] )
+  outputFileTrueFDR = outputFile + '_trueFDRResult'
   f = open(outputFileTrueFDR, 'w')
 
   lenTrueFDR = [ len(a) for a in trueFDR ]
@@ -641,8 +667,9 @@ def main(argv) :
   f.close()
 
   # write AUC
-  outputFileAUC = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_AUC'] )
+  # outputFileAUC = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_AUC'] )
+  outputFileAUC = outputFile + '_AUC'
   f = open(outputFileAUC, 'w')
   f.write(' '.join(model))
   f.write('\n')
@@ -666,4 +693,3 @@ if __name__ == '__main__':
     os.environ['LD_LIBRARY_PATH']  += (":" + '../rt-rank_1.5/cart/boost/1.55.0/lib')
     os.execve(os.path.realpath(__file__), sys.argv, os.environ)
   main(sys.argv)
-
