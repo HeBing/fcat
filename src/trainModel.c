@@ -36,7 +36,6 @@ int menu_trainModel(int argc, char **argv) {
 		printf("/* -m method                        */\n");
 		printf("/*    LogisticRegressionL1          */\n");
 		printf("/*    LogisticRegressionL2          */\n");
-		printf("/*    SVM                           */\n");
 		printf("/*    RandomForest                  */\n");
 		printf("/* -c penalty tuning                */\n");
 		printf("/* -t training data file            */\n");
@@ -167,19 +166,9 @@ int trainModel(char *method, float c, char *trainingFile, char *outputFile) {
 		sprintf(tmpStr, "%d ", (int)((col-1)*0.1));
 
 		strcat(cmd, tmpStr);
-    // last cmd arg is # of threads
-    // changed from 8 to 1
 		strcat(cmd, "100 1 > ");	
 	}
 
-	/* if(strcmp(method, "Benchmark") == 0) {
-		char tmpStr[10];
-
-		sprintf(tmpStr, "%d ", row);
-		strcat(cmd, tmpStr);
-		sprintf(tmpStr, "%d ", col-1);
-		strcat(cmd, tmpStr);
-	} */
 
 	strcat(cmd, outputFile);
 
