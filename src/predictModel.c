@@ -38,8 +38,7 @@ int menu_predictModel(int argc, char **argv) {
 		printf("/* -m method name                     */\n");
 		printf("/*    LogisticRegressionL1            */\n");
 		printf("/*    LogisticRegressionL2            */\n");
-		printf("/*    SVM                             */\n");
-		printf("/*    RandomFores                     */\n");
+		printf("/*    RandomForest                    */\n");
     printf("/* -tm trainedModel                   */\n");
     printf("/* -train trainFile                   */\n");
     printf("/* -test testFile                     */\n");
@@ -129,14 +128,6 @@ int predictModel(char *method, char *trainedModel, char *trainFile, char *testFi
   fscanf(tmpFp, "%d\n", &col);
   pclose(tmpFp);
  
-  /*
-  int row;
-  strcpy(tmpcmd, "wc -l ");
-  strcat(tmpcmd, trainingFile);
-  tmpFp = popen(tmpcmd, "r");
-  fscanf(tmpFp, "%d ", &row);
-  pclose(tmpFp);
-  */
 
   free(tmpcmd);
 

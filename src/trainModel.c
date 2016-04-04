@@ -36,7 +36,6 @@ int menu_trainModel(int argc, char **argv) {
 		printf("/* -m method                        */\n");
 		printf("/*    LogisticRegressionL1          */\n");
 		printf("/*    LogisticRegressionL2          */\n");
-		printf("/*    SVM                           */\n");
 		printf("/*    RandomForest                  */\n");
 		printf("/* -c penalty tuning                */\n");
 		printf("/* -t training data file            */\n");
@@ -123,7 +122,7 @@ int trainModel(char *method, float c, char *trainingFile, char *outputFile) {
     strcat(cmd, strC);
 	}
 	else if (strcmp(method, "SVM") == 0) {
-		strcpy(cmd, "../liblinear-1.96/train -s 5 -c "); // L1 penalized SVM
+		strcpy(cmd, "../liblinear-1.96/train -s 5 -c "); 
 		strcat(cmd, strC);
 	}
 	else if (strcmp(method, "RandomForest") == 0) {
@@ -133,8 +132,8 @@ int trainModel(char *method, float c, char *trainingFile, char *outputFile) {
 		strcat(cmd, " ");
 	}
 	else {
-		printf("Cannot find method %s. Fitting default model SVM. \n", method);
-		strcpy(cmd, "../liblinear-1.96/train -s 1 ");
+		printf("Cannot find method %s. Fitting default model LogisticRegressionL1. \n", method);
+		strcpy(cmd, "../liblinear-1.96/train -s 6 -c ");
 	}
 	
 	strcat(cmd, trainingFile);
@@ -167,19 +166,8 @@ int trainModel(char *method, float c, char *trainingFile, char *outputFile) {
 		sprintf(tmpStr, "%d ", (int)((col-1)*0.1));
 
 		strcat(cmd, tmpStr);
-    // last cmd arg is # of threads
-    // changed from 8 to 1
 		strcat(cmd, "100 1 > ");	
 	}
-
-	/* if(strcmp(method, "Benchmark") == 0) {
-		char tmpStr[10];
-
-		sprintf(tmpStr, "%d ", row);
-		strcat(cmd, tmpStr);
-		sprintf(tmpStr, "%d ", col-1);
-		strcat(cmd, tmpStr);
-	} */
 
 	strcat(cmd, outputFile);
 
