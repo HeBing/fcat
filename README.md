@@ -1,7 +1,7 @@
 # fcat
 
 #### Introduction
-`fcat` is a *flexible classification toolbox fo high throughput sequencing data*. 
+`fcat` is a *flexible classification toolbox for high throughput sequencing data*. 
 
 #### Features
 * Whole analysis pipeline from bam files to prediction results
