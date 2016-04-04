@@ -78,7 +78,7 @@ void random_forest_p(const data_t& train, const vec_data_t& test, preds_t& train
   }
  
   for (i=0;i<numthreads;i++)
-    threads[i] = new thread(bind(multiple_forest, trees_per_thread, cref(train), cref(test), ref(train_seg[i]), ref(seg[i]), ref(args)));
+    threads[i] = new thread(bind(multiple_forest, trees_per_thread, boost::cref(train), boost::cref(test), boost::ref(train_seg[i]), boost::ref(seg[i]), boost::ref(args)));
   
   for (i=0;i<numthreads;i++){
     threads[i]->join();
