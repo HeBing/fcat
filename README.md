@@ -10,7 +10,7 @@
 * Ease to use
 
 #### Quick Start
-* Step 1: Download [fcat-linux](https://github.com/HeBing/fcat/tree/linux-v1.0-beta) for linux and [fcat-mac](https://github.com/HeBing/fcat/tree/mac-v1.0-beta) for mac OS X.
+* Step 1: Download [fcat-linux-v1.0.zip](https://github.com/HeBing/fcat/archive/linux-v1.0-beta.zip) for linux and [fcat-mac-v1.0.zip](https://github.com/HeBing/fcat/archive/mac-v1.0-beta.zip) for mac OS X.
 * Step 2: unzip the download file
 * Step 3: change working directory to the unzipped folder and type `make` from command line
 * Step 4: change working directory to `src/` and run fcat with
