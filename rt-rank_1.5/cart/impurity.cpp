@@ -209,7 +209,7 @@ bool find_split_p(vector<tuple*> data, vector<int> dataCount, vector<int> invert
   for (i = 0; i < numthreads; i++)
 //	find_split_in_range(data, dataCount, invertIdx, i*(NF-1)/numthreads, (i+1)*(NF-1)/numthreads, F[i], V[i], Imp[i], skip, args);
 //    threads[i] = new thread(find_split_in_range, data, dataCount, invertIdx, i*(NF-1)/numthreads, (i+1)*(NF-1)/numthreads, ref(F[i]), ref(V[i]), ref(Imp[i]), ref(skip), cref(args));
-	threads[i] = new thread(bind(find_split_in_range, data, dataCount, invertIdx, make_pair(i*(NF-1)/numthreads, (i+1)*(NF-1)/numthreads), ref(F[i]), ref(V[i]), ref(Imp[i]), ref(skip), cref(args) ));
+	threads[i] = new thread(bind(find_split_in_range, data, dataCount, invertIdx, make_pair(i*(NF-1)/numthreads, (i+1)*(NF-1)/numthreads), boost::ref(F[i]), boost::ref(V[i]), boost::ref(Imp[i]), boost::ref(skip), boost::cref(args) ));
   for (i = 0; i < numthreads; i++) {
     threads[i]->join(); 
     delete threads[i];

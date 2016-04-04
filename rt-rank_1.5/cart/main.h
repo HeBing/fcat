@@ -31,7 +31,10 @@ int load_data(vector<tuple*>& train, vector< vector<tuple*> >& test, const args_
     return 0;
   fprintf(stderr, "done\n");
   fprintf(stderr, "loading test data...");
-  for (int i=0; i<myargs.num_test; i++) {
+  for (int i=0; i < myargs.num_test; i++) {
+    // fprintf(stderr, "my i is %d\n", i);
+    // fprintf(stderr, "test file name is %s\n", myargs.test_files[i]);
+    // fprintf(stderr, "myargs.num_test is %d\n", myargs.num_test);
     vector<tuple*> t;
     if (!tuple::read_input(t, myargs.test_files[i], numfeatures, 1, m, missing_file))
       return 0;
@@ -155,7 +158,7 @@ void presort_p(data_t train, const args_t& myargs) {
 	int numthreads = myargs.processors;
 	thread** threads = new thread*[numthreads];	
 	for (int i = 0; i < numthreads; i ++)
-		threads[i] = new thread(bind(presort_in_range, train, cref(myargs), i*(numfeatures-1)/numthreads, (i+1)*(numfeatures-1)/numthreads));
+		threads[i] = new thread(bind(presort_in_range, train, boost::cref(myargs), i*(numfeatures-1)/numthreads, (i+1)*(numfeatures-1)/numthreads));
   
 	for (int i = 0; i < numthreads; i++) {
     		threads[i]->join();
