@@ -1,22 +1,26 @@
 # fcat
 
 #### Introduction
-`fcat` is a *flexible classification toolbox fo high throughput sequencing data*. 
+`fcat` is a *flexible classification toolbox for high throughput sequencing data*. 
 
-Simply put, `fcat` is a supervised learning framework for predicting regulatory acitivties on the genome. `fcat` takes bam files and a list of training genomic regions (for which we know the truth) as input, train models with signals in the bam files around those given regions, and predict biological activities of interest genomewide with the trained models. 
-Currently the models include: logistic regression with L1 penalty (Lasso regression), logistic regression with L2 penalty (Ridge regression), and random forest. A unique feature of `fcat` is that it provides an ensemble learning method that integrates prediction results from individual models to augment the final prediction.
-
-If you have any questions on installation and usage of `fcat`, feel free to contact me at bhe3@jhu.edu. If there are error messages, please send those messages to me. Thanks!
-
-#### How to install
-
-* Step 1: Download the zipped repo and unzip `unzip fcat-master.zip`;
-* Step 2: Change working directory to `fcat-master` and type `make` on the command line.
+#### Features
+* Whole analysis pipeline from bam files to prediction results
+* Efficient and highly customizable calculation of read coverage
+* Ensemble learning with multiple individual models provided for prediction
+* Ease to use
 
 #### Quick Start
+* Step 1: Download [fcat-linux-v1.0.zip](https://github.com/HeBing/fcat/archive/linux-v1.0-beta.zip) for linux and [fcat-mac-v1.0.zip](https://github.com/HeBing/fcat/archive/mac-v1.0-beta.zip) for mac OS X.
+* Step 2: unzip the download file
+* Step 3: change working directory to the unzipped folder and type `make` from command line
+* Step 4: change working directory to `src/` and run fcat with
 
-* Change working directory to `src/`
-* Open `src/demo.sh` and copy the command you need to command line to run (see a simple example below)
+```bash
+python fcat.py -model RandomForest,LogisticRegressionL1 \
+  -train ./data/trainData.txt \
+  -test ./data/testData.txt \
+  -output ./data/finalResult.txt
+```
 
 #### An Example
 Below is a simple example where we predict binding sites of GABP based on models trained from CMYC in `src/demo.sh`:
@@ -46,8 +50,8 @@ python fcat.py -model RandomForest,LogisticRegressionL1 -train ./data/feature_tr
 ```
 
 #### Other requirements:
-* `fcat` require python is installed (2.6.6 or higher) on the machine.
 * Currently, `fcat` only supports linux/unix.
+* `fcat` require python is installed (2.6.6 or higher) on the machine.
 * `fcat` require `gcc/g++` 4.4.7 or higher.
 
 #### How to use
@@ -107,7 +111,7 @@ max=100
 /* -m method name                     */
 /*    LogisticRegressionL1            */
 /*    LogisticRegressionL2            */
-/*    RandomFores                     */
+/*    RandomForest                    */
 /* -tm trainedModel                   */
 /* -train trainFile                   */
 /* -test testFile                     */
@@ -117,5 +121,7 @@ max=100
 
 #### Note:
 * `fcat` uses codes from [`liblinear`](http://www.csie.ntu.edu.tw/~cjlin/liblinear/) and [`rt-rank`](https://sites.google.com/site/rtranking/) projects.
-* Currently, `fcat` only works under linux/unix.
+
+#### Contact
+If you have any questions on installation and usage of `fcat`, feel free to contact me at bhe3@jhu.edu. If there are error messages, please send those messages to me. Thanks!
 
