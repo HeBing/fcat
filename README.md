@@ -16,7 +16,10 @@
 * Step 4: change working directory to `src/` and run fcat with
 
 ```bash
-python fcat.py -model RandomForest,LogisticRegressionL1 -train ./data/feature_trainingCMYC_full.txt_5_1000 -test ./data/feature_testingGABP_full.txt_5_1000 -output ./data/finalResult.txt
+python fcat.py -model RandomForest,LogisticRegressionL1 \
+  -train ./data/trainData.txt \
+  -test ./data/testData.txt \
+  -output ./data/finalResult.txt
 ```
 
 #### An Example
