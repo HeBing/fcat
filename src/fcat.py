@@ -744,11 +744,11 @@ def main(argv) :
   return 0
 
 if __name__ == '__main__':
-  # newly added!
-  print '------------------------------------------'
-  print '- Add to LD_LIBRARY_PATH'
-  print 'original path:', os.environ['LD_LIBRARY_PATH']
-  if '../rt-rank_1.5/cart/boost/1.55.0/lib' not in os.environ['LD_LIBRARY_PATH']:
+  # added to set up environment path for boost lib
+  if 'LD_LIBRARY_PATH' not in os.environ:
+    os.environ['LD_LIBRARY_PATH']  = (":" + '../rt-rank_1.5/cart/boost/1.55.0/lib')
+    os.execve(os.path.realpath(__file__), sys.argv, os.environ)
+  elif '../rt-rank_1.5/cart/boost/1.55.0/lib' not in os.environ['LD_LIBRARY_PATH']:
     os.environ['LD_LIBRARY_PATH']  += (":" + '../rt-rank_1.5/cart/boost/1.55.0/lib')
     os.execve(os.path.realpath(__file__), sys.argv, os.environ)
   main(sys.argv)
