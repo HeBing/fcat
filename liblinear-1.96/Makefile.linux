@@ -1,25 +1,25 @@
 CXX ?= g++
 CC ?= gcc
 CFLAGS = -Wall -Wconversion -O3 -fPIC
-LIBS = blas/blas.a
+LIBS = blas/blas_linux.a
 SHVER = 2
 OS = $(shell uname)
 #LIBS = -lblas
 
 all: train predict
 
-lib: linear.o tron.o blas/blas.a
+lib: linear.o tron.o blas/blas_linux.a
 	if [ "$(OS)" = "Darwin" ]; then \
 		SHARED_LIB_FLAG="-dynamiclib -Wl,-install_name,liblinear.so.$(SHVER)"; \
 	else \
 		SHARED_LIB_FLAG="-shared -Wl,-soname,liblinear.so.$(SHVER)"; \
 	fi; \
-	$(CXX) $${SHARED_LIB_FLAG} linear.o tron.o blas/blas.a -o liblinear.so.$(SHVER)
+	$(CXX) $${SHARED_LIB_FLAG} linear.o tron.o blas/blas_linux.a -o liblinear.so.$(SHVER)
 
-train: tron.o linear.o train.c blas/blas.a
+train: tron.o linear.o train.c blas/blas_linux.a
 	$(CXX) $(CFLAGS) -o train train.c tron.o linear.o $(LIBS)
 
-predict: tron.o linear.o predict.c blas/blas.a
+predict: tron.o linear.o predict.c blas/blas_linux.a
 	$(CXX) $(CFLAGS) -o predict predict.c tron.o linear.o $(LIBS)
 
 tron.o: tron.cpp tron.h
@@ -28,7 +28,7 @@ tron.o: tron.cpp tron.h
 linear.o: linear.cpp linear.h
 	$(CXX) $(CFLAGS) -c -o linear.o linear.cpp
 
-blas/blas.a: blas/*.c blas/*.h
+blas/blas_linux.a: blas/*.c blas/*.h
 	make -C blas OPTFLAGS='$(CFLAGS)' CC='$(CC)';
 
 clean:
