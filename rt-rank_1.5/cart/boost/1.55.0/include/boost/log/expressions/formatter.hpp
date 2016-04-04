@@ -28,7 +28,7 @@
 #include <boost/log/expressions/message.hpp>
 #include <boost/log/detail/header.hpp>
 
-#ifdef BOOST_HAS_PRAGMA_ONCE
+#ifdef BOOST_LOG_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -94,7 +94,7 @@ public:
     {
     }
     /*!
-     * Move constructor. The moved-from formatter is left in an unspecified state.
+     * Move constructor
      */
     basic_formatter(BOOST_RV_REF(this_type) that) BOOST_NOEXCEPT : m_Formatter(boost::move(that.m_Formatter))
     {
@@ -115,7 +115,7 @@ public:
     }
 
     /*!
-     * Move assignment. The moved-from formatter is left in an unspecified state.
+     * Move assignment.
      */
     basic_formatter& operator= (BOOST_RV_REF(this_type) that) BOOST_NOEXCEPT
     {

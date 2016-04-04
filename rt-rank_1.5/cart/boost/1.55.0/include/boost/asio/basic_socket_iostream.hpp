@@ -26,7 +26,14 @@
 
 #if !defined(BOOST_ASIO_HAS_VARIADIC_TEMPLATES)
 
-# include <boost/asio/detail/variadic_templates.hpp>
+# include <boost/preprocessor/arithmetic/inc.hpp>
+# include <boost/preprocessor/repetition/enum_binary_params.hpp>
+# include <boost/preprocessor/repetition/enum_params.hpp>
+# include <boost/preprocessor/repetition/repeat_from_to.hpp>
+
+# if !defined(BOOST_ASIO_SOCKET_IOSTREAM_MAX_ARITY)
+#  define BOOST_ASIO_SOCKET_IOSTREAM_MAX_ARITY 5
+# endif // !defined(BOOST_ASIO_SOCKET_IOSTREAM_MAX_ARITY)
 
 // A macro that should expand to:
 //   template <typename T1, ..., typename Tn>
@@ -41,16 +48,16 @@
 //   }
 // This macro should only persist within this file.
 
-# define BOOST_ASIO_PRIVATE_CTR_DEF(n) \
-  template <BOOST_ASIO_VARIADIC_TPARAMS(n)> \
-  explicit basic_socket_iostream(BOOST_ASIO_VARIADIC_PARAMS(n)) \
+# define BOOST_ASIO_PRIVATE_CTR_DEF(z, n, data) \
+  template <BOOST_PP_ENUM_PARAMS(n, typename T)> \
+  explicit basic_socket_iostream(BOOST_PP_ENUM_BINARY_PARAMS(n, T, x)) \
     : std::basic_iostream<char>( \
         &this->detail::socket_iostream_base< \
           Protocol, StreamSocketService, Time, \
           TimeTraits, TimerService>::streambuf_) \
   { \
     this->setf(std::ios_base::unitbuf); \
-    if (rdbuf()->connect(BOOST_ASIO_VARIADIC_ARGS(n)) == 0) \
+    if (rdbuf()->connect(BOOST_PP_ENUM_PARAMS(n, x)) == 0) \
       this->setstate(std::ios_base::failbit); \
   } \
   /**/
@@ -64,11 +71,11 @@
 //   }
 // This macro should only persist within this file.
 
-# define BOOST_ASIO_PRIVATE_CONNECT_DEF(n) \
-  template <BOOST_ASIO_VARIADIC_TPARAMS(n)> \
-  void connect(BOOST_ASIO_VARIADIC_PARAMS(n)) \
+# define BOOST_ASIO_PRIVATE_CONNECT_DEF(z, n, data) \
+  template <BOOST_PP_ENUM_PARAMS(n, typename T)> \
+  void connect(BOOST_PP_ENUM_BINARY_PARAMS(n, T, x)) \
   { \
-    if (rdbuf()->connect(BOOST_ASIO_VARIADIC_ARGS(n)) == 0) \
+    if (rdbuf()->connect(BOOST_PP_ENUM_PARAMS(n, x)) == 0) \
       this->setstate(std::ios_base::failbit); \
   } \
   /**/
@@ -168,7 +175,9 @@ public:
       this->setstate(std::ios_base::failbit);
   }
 #else
-  BOOST_ASIO_VARIADIC_GENERATE(BOOST_ASIO_PRIVATE_CTR_DEF)
+  BOOST_PP_REPEAT_FROM_TO(
+      1, BOOST_PP_INC(BOOST_ASIO_SOCKET_IOSTREAM_MAX_ARITY),
+      BOOST_ASIO_PRIVATE_CTR_DEF, _ )
 #endif
 
 #if defined(GENERATING_DOCUMENTATION)
@@ -188,7 +197,9 @@ public:
       this->setstate(std::ios_base::failbit);
   }
 #else
-  BOOST_ASIO_VARIADIC_GENERATE(BOOST_ASIO_PRIVATE_CONNECT_DEF)
+  BOOST_PP_REPEAT_FROM_TO(
+      1, BOOST_PP_INC(BOOST_ASIO_SOCKET_IOSTREAM_MAX_ARITY),
+      BOOST_ASIO_PRIVATE_CONNECT_DEF, _ )
 #endif
 
   /// Close the connection.

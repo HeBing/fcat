@@ -52,25 +52,25 @@ public:
   /// Construct to represent the IPv4 TCP protocol.
   static tcp v4()
   {
-    return tcp(BOOST_ASIO_OS_DEF(AF_INET));
+    return tcp(PF_INET);
   }
 
   /// Construct to represent the IPv6 TCP protocol.
   static tcp v6()
   {
-    return tcp(BOOST_ASIO_OS_DEF(AF_INET6));
+    return tcp(PF_INET6);
   }
 
   /// Obtain an identifier for the type of the protocol.
   int type() const
   {
-    return BOOST_ASIO_OS_DEF(SOCK_STREAM);
+    return SOCK_STREAM;
   }
 
   /// Obtain an identifier for the protocol.
   int protocol() const
   {
-    return BOOST_ASIO_OS_DEF(IPPROTO_TCP);
+    return IPPROTO_TCP;
   }
 
   /// Obtain an identifier for the protocol family.
@@ -123,7 +123,7 @@ public:
   typedef implementation_defined no_delay;
 #else
   typedef boost::asio::detail::socket_option::boolean<
-    BOOST_ASIO_OS_DEF(IPPROTO_TCP), BOOST_ASIO_OS_DEF(TCP_NODELAY)> no_delay;
+    IPPROTO_TCP, TCP_NODELAY> no_delay;
 #endif
 
   /// Compare two protocols for equality.

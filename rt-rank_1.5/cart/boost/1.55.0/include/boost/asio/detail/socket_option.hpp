@@ -274,14 +274,14 @@ public:
 
   // Get the address of the linger data.
   template <typename Protocol>
-  detail::linger_type* data(const Protocol&)
+  ::linger* data(const Protocol&)
   {
     return &value_;
   }
 
   // Get the address of the linger data.
   template <typename Protocol>
-  const detail::linger_type* data(const Protocol&) const
+  const ::linger* data(const Protocol&) const
   {
     return &value_;
   }
@@ -305,7 +305,7 @@ public:
   }
 
 private:
-  detail::linger_type value_;
+  ::linger value_;
 };
 
 } // namespace socket_option

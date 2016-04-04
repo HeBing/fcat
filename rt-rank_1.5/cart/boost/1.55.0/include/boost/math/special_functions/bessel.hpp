@@ -48,13 +48,7 @@ struct sph_bessel_j_small_z_series_term
    {
       BOOST_MATH_STD_USING
       mult = x / 2;
-      if(v + 3 > max_factorial<T>::value)
-      {
-         term = v * log(mult) - boost::math::lgamma(v+1+T(0.5f), Policy());
-         term = exp(term);
-      }
-      else
-         term = pow(mult, T(v)) / boost::math::tgamma(v+1+T(0.5f), Policy());
+      term = pow(mult, T(v)) / boost::math::tgamma(v+1+T(0.5f), Policy());
       mult *= -mult;
    }
    T operator()()
@@ -147,11 +141,6 @@ inline T sph_bessel_j_imp(unsigned n, T x, const Policy& pol)
    //
    if(n == 0)
       return boost::math::sinc_pi(x, pol);
-   //
-   // Special case for x == 0:
-   //
-   if(x == 0)
-      return 0;
    //
    // When x is small we may end up with 0/0, use series evaluation
    // instead, especially as it converges rapidly:
@@ -762,5 +751,4 @@ inline OutputIterator cyl_neumann_zero(T v,
 } // namespace boost
 
 #endif // BOOST_MATH_BESSEL_HPP
-
 

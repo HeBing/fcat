@@ -40,10 +40,6 @@
 #  include <boost/geometry/io/dsv/write.hpp>
 #endif
 
-#ifdef BOOST_GEOMETRY_TIME_OVERLAY
-# include <boost/timer.hpp>
-#endif
-
 
 namespace boost { namespace geometry
 {

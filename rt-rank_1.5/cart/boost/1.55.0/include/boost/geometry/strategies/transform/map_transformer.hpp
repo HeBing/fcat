@@ -32,23 +32,25 @@ namespace strategy { namespace transform
 {
 
 /*!
-\brief Transformation strategy to map from one to another Cartesian coordinate system
+\brief Transformation strategy to do map from one to another Cartesian system
 \ingroup strategies
+\tparam P1 first point type
+\tparam P2 second point type
 \tparam Mirror if true map is mirrored upside-down (in most cases pixels
     are from top to bottom, while map is from bottom to top)
  */
 template
 <
-    typename CalculationType,
-    std::size_t Dimension1,
-    std::size_t Dimension2,
-    bool Mirror = false,
-    bool SameScale = true
+    typename P1, typename P2,
+    bool Mirror = false, bool SameScale = true,
+    std::size_t Dimension1 = dimension<P1>::type::value,
+    std::size_t Dimension2 = dimension<P2>::type::value
 >
 class map_transformer
-    : public ublas_transformer<CalculationType, Dimension1, Dimension2>
+    : public ublas_transformer<P1, P2, Dimension1, Dimension2>
 {
-    typedef boost::numeric::ublas::matrix<CalculationType> M;
+    typedef typename select_coordinate_type<P1, P2>::type T;
+    typedef boost::numeric::ublas::matrix<T> M;
 
 public :
     template <typename B, typename D>

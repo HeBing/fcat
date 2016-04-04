@@ -35,7 +35,14 @@
 
 #if !defined(BOOST_ASIO_HAS_VARIADIC_TEMPLATES)
 
-# include <boost/asio/detail/variadic_templates.hpp>
+# include <boost/preprocessor/arithmetic/inc.hpp>
+# include <boost/preprocessor/repetition/enum_binary_params.hpp>
+# include <boost/preprocessor/repetition/enum_params.hpp>
+# include <boost/preprocessor/repetition/repeat_from_to.hpp>
+
+# if !defined(BOOST_ASIO_SOCKET_STREAMBUF_MAX_ARITY)
+#  define BOOST_ASIO_SOCKET_STREAMBUF_MAX_ARITY 5
+# endif // !defined(BOOST_ASIO_SOCKET_STREAMBUF_MAX_ARITY)
 
 // A macro that should expand to:
 //   template <typename T1, ..., typename Tn>
@@ -53,16 +60,17 @@
 //   }
 // This macro should only persist within this file.
 
-# define BOOST_ASIO_PRIVATE_CONNECT_DEF(n) \
-  template <BOOST_ASIO_VARIADIC_TPARAMS(n)> \
+# define BOOST_ASIO_PRIVATE_CONNECT_DEF( z, n, data ) \
+  template <BOOST_PP_ENUM_PARAMS(n, typename T)> \
   basic_socket_streambuf<Protocol, StreamSocketService, \
-    Time, TimeTraits, TimerService>* connect(BOOST_ASIO_VARIADIC_PARAMS(n)) \
+    Time, TimeTraits, TimerService>* connect( \
+      BOOST_PP_ENUM_BINARY_PARAMS(n, T, x)) \
   { \
     init_buffers(); \
     this->basic_socket<Protocol, StreamSocketService>::close(ec_); \
     typedef typename Protocol::resolver resolver_type; \
     typedef typename resolver_type::query resolver_query; \
-    resolver_query query(BOOST_ASIO_VARIADIC_ARGS(n)); \
+    resolver_query query(BOOST_PP_ENUM_PARAMS(n, x)); \
     resolve_and_connect(query); \
     return !ec_ ? this : 0; \
   } \
@@ -208,7 +216,9 @@ public:
     return !ec_ ? this : 0;
   }
 #else
-  BOOST_ASIO_VARIADIC_GENERATE(BOOST_ASIO_PRIVATE_CONNECT_DEF)
+  BOOST_PP_REPEAT_FROM_TO(
+      1, BOOST_PP_INC(BOOST_ASIO_SOCKET_STREAMBUF_MAX_ARITY),
+      BOOST_ASIO_PRIVATE_CONNECT_DEF, _ )
 #endif
 
   /// Close the connection.

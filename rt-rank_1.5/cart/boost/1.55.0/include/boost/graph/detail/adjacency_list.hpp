@@ -806,6 +806,7 @@ namespace boost {
 
         typedef typename EdgeList::value_type StoredEdge;
         typename EdgeList::iterator i = el.find(StoredEdge(v)), end = el.end();
+        BOOST_ASSERT ((i != end));
         if (i != end) {
           g.m_edges.erase((*i).get_iter());
           el.erase(i);

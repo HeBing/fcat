@@ -53,16 +53,6 @@
 # include <boost/asio/handler_type.hpp>
 #endif // defined(BOOST_ASIO_ENABLE_HANDLER_TYPE_REQUIREMENTS)
 
-// Newer gcc needs special treatment to suppress unused typedef warnings.
-#if defined(__GNUC__)
-# if ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) || (__GNUC__ > 4)
-#  define BOOST_ASIO_UNUSED_TYPEDEF __attribute__((__unused__))
-# endif // ((__GNUC__ == 4) && (__GNUC_MINOR__ >= 8)) || (__GNUC__ > 4)
-#endif // defined(__GNUC__)
-#if !defined(BOOST_ASIO_UNUSED_TYPEDEF)
-# define BOOST_ASIO_UNUSED_TYPEDEF
-#endif // !defined(BOOST_ASIO_UNUSED_TYPEDEF)
-
 namespace boost {
 namespace asio {
 namespace detail {
@@ -141,7 +131,7 @@ struct handler_type_requirements
       sizeof( \
         boost::asio::detail::lvref< \
           asio_true_handler_type>()(), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_READ_HANDLER_CHECK( \
     handler_type, handler) \
@@ -168,7 +158,7 @@ struct handler_type_requirements
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>(), \
             boost::asio::detail::lvref<const std::size_t>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 
 #define BOOST_ASIO_WRITE_HANDLER_CHECK( \
@@ -196,7 +186,7 @@ struct handler_type_requirements
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>(), \
             boost::asio::detail::lvref<const std::size_t>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_ACCEPT_HANDLER_CHECK( \
     handler_type, handler) \
@@ -221,7 +211,7 @@ struct handler_type_requirements
         boost::asio::detail::lvref< \
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_CONNECT_HANDLER_CHECK( \
     handler_type, handler) \
@@ -246,7 +236,7 @@ struct handler_type_requirements
         boost::asio::detail::lvref< \
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_COMPOSED_CONNECT_HANDLER_CHECK( \
     handler_type, handler, iter_type) \
@@ -273,7 +263,7 @@ struct handler_type_requirements
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>(), \
             boost::asio::detail::lvref<const iter_type>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_RESOLVE_HANDLER_CHECK( \
     handler_type, handler, iter_type) \
@@ -300,7 +290,7 @@ struct handler_type_requirements
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>(), \
             boost::asio::detail::lvref<const iter_type>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_WAIT_HANDLER_CHECK( \
     handler_type, handler) \
@@ -325,7 +315,7 @@ struct handler_type_requirements
         boost::asio::detail::lvref< \
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_SIGNAL_HANDLER_CHECK( \
     handler_type, handler) \
@@ -352,7 +342,7 @@ struct handler_type_requirements
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>(), \
             boost::asio::detail::lvref<const int>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_HANDSHAKE_HANDLER_CHECK( \
     handler_type, handler) \
@@ -377,7 +367,7 @@ struct handler_type_requirements
         boost::asio::detail::lvref< \
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_BUFFERED_HANDSHAKE_HANDLER_CHECK( \
     handler_type, handler) \
@@ -404,7 +394,7 @@ struct handler_type_requirements
           asio_true_handler_type>()( \
           boost::asio::detail::lvref<const boost::system::error_code>(), \
           boost::asio::detail::lvref<const std::size_t>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #define BOOST_ASIO_SHUTDOWN_HANDLER_CHECK( \
     handler_type, handler) \
@@ -429,57 +419,57 @@ struct handler_type_requirements
         boost::asio::detail::lvref< \
           asio_true_handler_type>()( \
             boost::asio::detail::lvref<const boost::system::error_code>()), \
-        char(0))> BOOST_ASIO_UNUSED_TYPEDEF
+        char(0))>
 
 #else // !defined(BOOST_ASIO_ENABLE_HANDLER_TYPE_REQUIREMENTS)
 
 #define BOOST_ASIO_COMPLETION_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_READ_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_WRITE_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_ACCEPT_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_CONNECT_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_COMPOSED_CONNECT_HANDLER_CHECK( \
     handler_type, handler, iter_type) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_RESOLVE_HANDLER_CHECK( \
     handler_type, handler, iter_type) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_WAIT_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_SIGNAL_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_HANDSHAKE_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_BUFFERED_HANDSHAKE_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #define BOOST_ASIO_SHUTDOWN_HANDLER_CHECK( \
     handler_type, handler) \
-  typedef int BOOST_ASIO_UNUSED_TYPEDEF
+  typedef int
 
 #endif // !defined(BOOST_ASIO_ENABLE_HANDLER_TYPE_REQUIREMENTS)
 

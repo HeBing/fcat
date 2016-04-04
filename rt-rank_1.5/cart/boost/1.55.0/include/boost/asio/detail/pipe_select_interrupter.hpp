@@ -18,7 +18,6 @@
 #include <boost/asio/detail/config.hpp>
 
 #if !defined(BOOST_ASIO_WINDOWS)
-#if !defined(BOOST_ASIO_WINDOWS_RUNTIME)
 #if !defined(__CYGWIN__)
 #if !defined(__SYMBIAN32__)
 #if !defined(BOOST_ASIO_HAS_EVENTFD)
@@ -85,7 +84,6 @@ private:
 #endif // !defined(BOOST_ASIO_HAS_EVENTFD)
 #endif // !defined(__SYMBIAN32__)
 #endif // !defined(__CYGWIN__)
-#endif // !defined(BOOST_ASIO_WINDOWS_RUNTIME)
 #endif // !defined(BOOST_ASIO_WINDOWS)
 
 #endif // BOOST_ASIO_DETAIL_PIPE_SELECT_INTERRUPTER_HPP

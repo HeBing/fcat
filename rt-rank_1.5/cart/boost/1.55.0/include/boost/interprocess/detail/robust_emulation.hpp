@@ -24,7 +24,6 @@
 #include <boost/interprocess/detail/tmp_dir_helpers.hpp>
 #include <boost/interprocess/detail/intermodule_singleton.hpp>
 #include <boost/interprocess/exceptions.hpp>
-#include <boost/interprocess/sync/spin/wait.hpp>
 #include <string>
 
 namespace boost{
@@ -229,7 +228,7 @@ inline void robust_spin_mutex<Mutex>::lock()
 
    //Now the logic. Try to lock, if successful mark the owner
    //if it fails, start recovery logic
-   spin_wait swait;
+   unsigned int spin_count = 0;
    while(1){
       if (mtx.try_lock()){
          atomic_write32(&this->owner, get_current_process_id());
@@ -237,10 +236,14 @@ inline void robust_spin_mutex<Mutex>::lock()
       }
       else{
          //Do the dead owner checking each spin_threshold lock tries
-         swait.yield();
-         if(0 == (swait.count() & 255u)){
+         ipcdetail::thread_yield();
+         ++spin_count;
+         if(spin_count > spin_threshold){
             //Check if owner dead and take ownership if possible
-            if(this->robust_check()){
+            if(!this->robust_check()){
+               spin_count = 0;
+            }
+            else{
                break;
             }
          }
@@ -289,7 +292,6 @@ inline bool robust_spin_mutex<Mutex>::timed_lock
    if(now >= abs_time)
       return this->try_lock();
 
-   spin_wait swait;
    do{
       if(this->try_lock()){
          break;
@@ -300,7 +302,7 @@ inline bool robust_spin_mutex<Mutex>::timed_lock
          return this->try_lock();
       }
       // relinquish current time slice
-      swait.yield();
+      ipcdetail::thread_yield();
    }while (true);
 
    return true;

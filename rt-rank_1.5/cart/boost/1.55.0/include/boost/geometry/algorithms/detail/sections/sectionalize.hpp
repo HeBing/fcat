@@ -81,7 +81,7 @@ struct section
         , non_duplicate_index(-1)
     {
         assign_inverse(bounding_box);
-        for (std::size_t i = 0; i < DimensionCount; i++)
+        for (register std::size_t i = 0; i < DimensionCount; i++)
         {
             directions[i] = 0;
         }
@@ -367,6 +367,8 @@ struct sectionalize_range
     static inline void apply(Range const& range, Sections& sections,
                 ring_identifier ring_id)
     {
+        typedef model::referring_segment<Point const> segment_type;
+
         cview_type cview(range);
         view_type view(cview);
 

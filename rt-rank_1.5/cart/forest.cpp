@@ -29,7 +29,7 @@ void single_forest(const data_t& train, const vec_data_t& test, preds_t& train_p
 void multiple_forest(int trees, const data_t& train, const vec_data_t& test, preds_t& train_preds, vec_preds_t& test_preds_seg, args_t& args) {
   for (int t = 0; t < trees; t++) {
     single_forest(train, test, train_preds, test_preds_seg, args);
-    fprintf(stderr, "%d\n", t);
+    fprintf(stderr, "trees: %d\n", t);
   }
 }
 
@@ -59,8 +59,10 @@ void random_forest_p(const data_t& train, const vec_data_t& test, preds_t& train
   if (numthreads > trees)
     numthreads = trees;
   trees = (trees / numthreads) * numthreads;
-
-  int trees_per_thread = trees / numthreads;  
+  int trees_per_thread = trees / numthreads;
+  fprintf(stderr, "**********trees is %d\n", trees);
+  fprintf(stderr, "**********numthreads is %d\n", numthreads);
+  fprintf(stderr, "**********trees_per_thread is %d\n", trees_per_thread);  
   thread** threads = new thread*[numthreads];
 
   vector< vec_preds_t > seg;

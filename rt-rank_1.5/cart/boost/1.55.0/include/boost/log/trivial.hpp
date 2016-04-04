@@ -23,7 +23,7 @@
 #include <boost/log/sources/record_ostream.hpp>
 #include <boost/log/detail/header.hpp>
 
-#ifdef BOOST_HAS_PRAGMA_ONCE
+#ifdef BOOST_LOG_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -51,7 +51,6 @@ enum severity_level
 //! Returns stringized enumeration value or \c NULL, if the value is not valid
 BOOST_LOG_API const char* to_string(severity_level lvl);
 
-//! Outputs stringized representation of the severity level to the stream
 template< typename CharT, typename TraitsT >
 inline std::basic_ostream< CharT, TraitsT >& operator<< (
     std::basic_ostream< CharT, TraitsT >& strm, severity_level lvl)
@@ -64,7 +63,6 @@ inline std::basic_ostream< CharT, TraitsT >& operator<< (
     return strm;
 }
 
-//! Reads stringized representation of the severity level from the stream
 template< typename CharT, typename TraitsT >
 BOOST_LOG_API std::basic_istream< CharT, TraitsT >& operator>> (
     std::basic_istream< CharT, TraitsT >& strm, severity_level& lvl);
@@ -76,12 +74,7 @@ typedef sources::severity_logger_mt< severity_level > logger_type;
 typedef sources::severity_logger< severity_level > logger_type;
 #endif
 
-/*!
- * \brief Trivial logger tag
- *
- * This tag can be used to acquire the logger that is used with lrivial logging macros.
- * This may be useful when the logger is used with other macros which require a logger.
- */
+//! Trivial logger tag
 struct logger
 {
     //! Logger type
@@ -100,15 +93,7 @@ struct logger
 #endif
 };
 
-/*!
- * The macro is used to initiate logging. The \c lvl argument of the macro specifies one of the following
- * severity levels: \c trace, \c debug, \c info, \c warning, \c error or \c fatal (see \c severity_level enum).
- * Following the macro, there may be a streaming expression that composes the record message string. For example:
- *
- * \code
- * BOOST_LOG_TRIVIAL(info) << "Hello, world!";
- * \endcode
- */
+//! The macro is used to initiate logging
 #define BOOST_LOG_TRIVIAL(lvl)\
     BOOST_LOG_STREAM_WITH_PARAMS(::boost::log::trivial::logger::get(),\
         (::boost::log::keywords::severity = ::boost::log::trivial::lvl))

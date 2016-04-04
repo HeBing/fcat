@@ -251,11 +251,8 @@ class basic_bufferbuf
 //!A basic_istream class that uses a fixed size character buffer
 //!as its formatting buffer.
 template <class CharT, class CharTraits>
-class basic_ibufferstream :
-   /// @cond
-   private basic_bufferbuf<CharT, CharTraits>,
-   /// @endcond
-   public std::basic_istream<CharT, CharTraits>
+class basic_ibufferstream
+   : public std::basic_istream<CharT, CharTraits>
 {
    public:                         // Typedefs
    typedef typename std::basic_ios
@@ -265,40 +262,24 @@ class basic_ibufferstream :
    typedef typename std::basic_ios<char_type, CharTraits>::off_type     off_type;
    typedef typename std::basic_ios<char_type, CharTraits>::traits_type  traits_type;
 
-   /// @cond
    private:
-   typedef basic_bufferbuf<CharT, CharTraits>         bufferbuf_t;
-   typedef std::basic_ios<char_type, CharTraits>      basic_ios_t;
-   typedef std::basic_istream<char_type, CharTraits>  base_t;
-   bufferbuf_t &       get_buf()      {  return *this;  }
-   const bufferbuf_t & get_buf() const{  return *this;  }
-   /// @endcond
+   typedef std::basic_ios<char_type, CharTraits>                basic_ios_t;
+   typedef std::basic_istream<char_type, CharTraits>            base_t;
 
    public:
    //!Constructor.
    //!Does not throw.
    basic_ibufferstream(std::ios_base::openmode mode = std::ios_base::in)
-      :  //basic_ios_t() is called first (lefting it uninitialized) as it's a
-         //virtual base of basic_istream. The class will be initialized when
-         //basic_istream is constructed calling basic_ios_t::init().
-         //As bufferbuf_t's constructor does not throw there is no risk of
-         //calling the basic_ios_t's destructor without calling basic_ios_t::init()
-        bufferbuf_t(mode | std::ios_base::in)
-      , base_t(&get_buf())
-      {}
+      :  basic_ios_t(), base_t(0), m_buf(mode | std::ios_base::in)
+      {  basic_ios_t::init(&m_buf); }
 
    //!Constructor. Assigns formatting buffer.
    //!Does not throw.
    basic_ibufferstream(const CharT *buf, std::size_t length,
                        std::ios_base::openmode mode = std::ios_base::in)
-      :  //basic_ios_t() is called first (lefting it uninitialized) as it's a
-         //virtual base of basic_istream. The class will be initialized when
-         //basic_istream is constructed calling basic_ios_t::init().
-         //As bufferbuf_t's constructor does not throw there is no risk of
-         //calling the basic_ios_t's destructor without calling basic_ios_t::init()
-        bufferbuf_t(const_cast<CharT*>(buf), length, mode | std::ios_base::in)
-      , base_t(&get_buf())
-      {}
+      :  basic_ios_t(), base_t(0),
+         m_buf(const_cast<CharT*>(buf), length, mode | std::ios_base::in)
+      {  basic_ios_t::init(&m_buf); }
 
    ~basic_ibufferstream(){};
 
@@ -306,27 +287,29 @@ class basic_ibufferstream :
    //!Returns the address of the stored
    //!stream buffer.
    basic_bufferbuf<CharT, CharTraits>* rdbuf() const
-      { return const_cast<basic_bufferbuf<CharT, CharTraits>*>(&get_buf()); }
+      { return const_cast<basic_bufferbuf<CharT, CharTraits>*>(&m_buf); }
 
    //!Returns the pointer and size of the internal buffer.
    //!Does not throw.
    std::pair<const CharT *, std::size_t> buffer() const
-      { return get_buf().buffer(); }
+      { return m_buf.buffer(); }
 
    //!Sets the underlying buffer to a new value. Resets
    //!stream position. Does not throw.
    void buffer(const CharT *buf, std::size_t length)
-      {  get_buf().buffer(const_cast<CharT*>(buf), length);  }
+      {  m_buf.buffer(const_cast<CharT*>(buf), length);  }
+
+   /// @cond
+   private:
+   basic_bufferbuf<CharT, CharTraits> m_buf;
+   /// @endcond
 };
 
 //!A basic_ostream class that uses a fixed size character buffer
 //!as its formatting buffer.
 template <class CharT, class CharTraits>
-class basic_obufferstream :
-   /// @cond
-   private basic_bufferbuf<CharT, CharTraits>,
-   /// @endcond
-   public std::basic_ostream<CharT, CharTraits>
+class basic_obufferstream
+   : public std::basic_ostream<CharT, CharTraits>
 {
    public:
    typedef typename std::basic_ios
@@ -338,38 +321,23 @@ class basic_obufferstream :
 
    /// @cond
    private:
-   typedef basic_bufferbuf<CharT, CharTraits>         bufferbuf_t;
    typedef std::basic_ios<char_type, CharTraits>      basic_ios_t;
    typedef std::basic_ostream<char_type, CharTraits>  base_t;
-   bufferbuf_t &       get_buf()      {  return *this;  }
-   const bufferbuf_t & get_buf() const{  return *this;  }
    /// @endcond
-
    public:
    //!Constructor.
    //!Does not throw.
    basic_obufferstream(std::ios_base::openmode mode = std::ios_base::out)
-      :  //basic_ios_t() is called first (lefting it uninitialized) as it's a
-         //virtual base of basic_istream. The class will be initialized when
-         //basic_istream is constructed calling basic_ios_t::init().
-         //As bufferbuf_t's constructor does not throw there is no risk of
-         //calling the basic_ios_t's destructor without calling basic_ios_t::init()
-         bufferbuf_t(mode | std::ios_base::out)
-      ,  base_t(&get_buf())
-      {}
+      :  basic_ios_t(), base_t(0), m_buf(mode | std::ios_base::out)
+      {  basic_ios_t::init(&m_buf); }
 
    //!Constructor. Assigns formatting buffer.
    //!Does not throw.
    basic_obufferstream(CharT *buf, std::size_t length,
                        std::ios_base::openmode mode = std::ios_base::out)
-      :  //basic_ios_t() is called first (lefting it uninitialized) as it's a
-         //virtual base of basic_istream. The class will be initialized when
-         //basic_istream is constructed calling basic_ios_t::init().
-         //As bufferbuf_t's constructor does not throw there is no risk of
-         //calling the basic_ios_t's destructor without calling basic_ios_t::init()
-         bufferbuf_t(buf, length, mode | std::ios_base::out)
-      ,  base_t(&get_buf())
-      {}
+      :  basic_ios_t(), base_t(0),
+         m_buf(buf, length, mode | std::ios_base::out)
+      {  basic_ios_t::init(&m_buf); }
 
    ~basic_obufferstream(){}
 
@@ -377,28 +345,31 @@ class basic_obufferstream :
    //!Returns the address of the stored
    //!stream buffer.
    basic_bufferbuf<CharT, CharTraits>* rdbuf() const
-      { return const_cast<basic_bufferbuf<CharT, CharTraits>*>(&get_buf()); }
+      { return const_cast<basic_bufferbuf<CharT, CharTraits>*>(&m_buf); }
 
    //!Returns the pointer and size of the internal buffer.
    //!Does not throw.
    std::pair<CharT *, std::size_t> buffer() const
-      { return get_buf().buffer(); }
+      { return m_buf.buffer(); }
 
    //!Sets the underlying buffer to a new value. Resets
    //!stream position. Does not throw.
    void buffer(CharT *buf, std::size_t length)
-      {  get_buf().buffer(buf, length);  }
+      {  m_buf.buffer(buf, length);  }
+
+   /// @cond
+   private:
+   basic_bufferbuf<CharT, CharTraits> m_buf;
+   /// @endcond
 };
 
 
 //!A basic_iostream class that uses a fixed size character buffer
 //!as its formatting buffer.
 template <class CharT, class CharTraits>
-class basic_bufferstream :
-   /// @cond
-   private basic_bufferbuf<CharT, CharTraits>,
-   /// @endcond
-   public std::basic_iostream<CharT, CharTraits>
+class basic_bufferstream
+   : public std::basic_iostream<CharT, CharTraits>
+
 {
    public:                         // Typedefs
    typedef typename std::basic_ios
@@ -410,11 +381,8 @@ class basic_bufferstream :
 
    /// @cond
    private:
-   typedef basic_bufferbuf<CharT, CharTraits>         bufferbuf_t;
-   typedef std::basic_ios<char_type, CharTraits>      basic_ios_t;
-   typedef std::basic_iostream<char_type, CharTraits> base_t;
-   bufferbuf_t &       get_buf()      {  return *this;  }
-   const bufferbuf_t & get_buf() const{  return *this;  }
+   typedef std::basic_ios<char_type, CharTraits>                 basic_ios_t;
+   typedef std::basic_iostream<char_type, CharTraits>            base_t;
    /// @endcond
 
    public:
@@ -422,28 +390,16 @@ class basic_bufferstream :
    //!Does not throw.
    basic_bufferstream(std::ios_base::openmode mode
                       = std::ios_base::in | std::ios_base::out)
-      :  //basic_ios_t() is called first (lefting it uninitialized) as it's a
-         //virtual base of basic_istream. The class will be initialized when
-         //basic_istream is constructed calling basic_ios_t::init().
-         //As bufferbuf_t's constructor does not throw there is no risk of
-         //calling the basic_ios_t's destructor without calling basic_ios_t::init()
-         bufferbuf_t(mode)
-      ,  base_t(&get_buf())
-      {}
+      :  basic_ios_t(), base_t(0), m_buf(mode)
+      {  basic_ios_t::init(&m_buf); }
 
    //!Constructor. Assigns formatting buffer.
    //!Does not throw.
    basic_bufferstream(CharT *buf, std::size_t length,
                       std::ios_base::openmode mode
                         = std::ios_base::in | std::ios_base::out)
-      :  //basic_ios_t() is called first (lefting it uninitialized) as it's a
-         //virtual base of basic_istream. The class will be initialized when
-         //basic_istream is constructed calling basic_ios_t::init().
-         //As bufferbuf_t's constructor does not throw there is no risk of
-         //calling the basic_ios_t's destructor without calling basic_ios_t::init()
-         bufferbuf_t(buf, length, mode)
-      ,  base_t(&get_buf())
-      {}
+      :  basic_ios_t(), base_t(0), m_buf(buf, length, mode)
+      {  basic_ios_t::init(&m_buf); }
 
    ~basic_bufferstream(){}
 
@@ -451,17 +407,22 @@ class basic_bufferstream :
    //!Returns the address of the stored
    //!stream buffer.
    basic_bufferbuf<CharT, CharTraits>* rdbuf() const
-      { return const_cast<basic_bufferbuf<CharT, CharTraits>*>(&get_buf()); }
+      { return const_cast<basic_bufferbuf<CharT, CharTraits>*>(&m_buf); }
 
    //!Returns the pointer and size of the internal buffer.
    //!Does not throw.
    std::pair<CharT *, std::size_t> buffer() const
-      { return get_buf().buffer(); }
+      { return m_buf.buffer(); }
 
    //!Sets the underlying buffer to a new value. Resets
    //!stream position. Does not throw.
    void buffer(CharT *buf, std::size_t length)
-      {  get_buf().buffer(buf, length);  }
+      {  m_buf.buffer(buf, length);  }
+
+   /// @cond
+   private:
+   basic_bufferbuf<CharT, CharTraits> m_buf;
+   /// @endcond
 };
 
 //Some typedefs to simplify usage

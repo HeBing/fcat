@@ -40,6 +40,27 @@ int main(int argc, char* argv[]) {
     return 0;
   }
 
+
+  // getopt does not work very well
+  fprintf(stderr, "*************************\n");
+  fprintf(stderr, "features is %d\n", myargs.features);
+  fprintf(stderr, "trees is %d\n", myargs.trees);
+  fprintf(stderr, "processors is %d\n", myargs.processors);
+  fprintf(stderr, "alpha is %f\n", myargs.alpha);
+  fprintf(stderr, "train_file is %s\n", myargs.train_file);
+  fprintf(stderr, "test_file is %s\n", myargs.test_files[0]);
+  fprintf(stderr, "read_targets is %d\n", myargs.read_targets);
+  fprintf(stderr, "rounds is %d\n", myargs.rounds);
+  fprintf(stderr, "ntra is %d\n", myargs.ntra);
+
+  fprintf(stderr, "*************************\n");
+  char *algorithms[] =
+  {
+    "boost",
+    "forest",
+    "regression"
+  };
+  fprintf(stderr, "randomforest is myargs.alg: %s\n", algorithms[myargs.alg]);
   // load data from input files
   data_t train;
   vec_data_t test;
@@ -75,7 +96,9 @@ int main(int argc, char* argv[]) {
     // single regression tree
     int N = train.size();
 	vector<int> countData(myargs.ntra, 1);
+
     if (myargs.alg == ALG_BOOST || myargs.alg == ALG_REGRESSION) {
+
       for (int T = 0; T < myargs.trees; T++) {
 	// make tree
 	dt_node* t = new dt_node(train, myargs, myargs.depth, 1, myargs.kfeatures, false, myargs);
@@ -123,17 +146,23 @@ int main(int argc, char* argv[]) {
 
     // forest
     if (myargs.alg == ALG_FOREST) {
+
+      fprintf(stderr, "i am here 8\n");
       random_forest_p(train, test, train_preds, test_preds, myargs);
-      //cout << "rmse = " << rmse(test_preds[0], test[0]) << endl;
+      // cout << "rmse = " << rmse(test_preds[0], test[0]) << endl;
       fprintf(stderr, "rmse=%f\n", (float)(rmse(test_preds[0], test[0])));
 
 	// if combining with python, print predictions of this tree to stdout
+      fprintf(stderr, "myargs.read_targets is %d\n", myargs.read_targets);
       if (myargs.read_targets) {
 	for(i=0; i<N; i++)
+          // fprintf(stderr, "train_preds[i] is %f\n", train_preds[i]);
 	  cout << train_preds[i] << endl;
       	for (i=0; i<myargs.num_test; i++)
-	  for(int j = 0; j < test_preds[i].size(); j++)
+	  for(int j = 0; j < test_preds[i].size(); j++) {
+            // fprintf(stderr, "test_preds[i][j] is %f\n", test_preds[i][j]);
 	    cout << test_preds[i][j] << endl;
+          }
       }
     }
   }

@@ -21,6 +21,7 @@
   || defined(GENERATING_DOCUMENTATION)
 
 #include <cstddef>
+#include <boost/config.hpp>
 #include <boost/asio/async_result.hpp>
 #include <boost/asio/detail/cstdint.hpp>
 #include <boost/asio/detail/win_iocp_handle_service.hpp>

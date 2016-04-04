@@ -54,7 +54,7 @@ static void init_args(args_t& a) {
   a.depth = 1000;
   a.num_test = 1;
   a.kfeatures = -1;
-  a.alg = ALG_REGRESSION;
+  a.alg = ALG_FOREST;
   a.verbose = 0;
   a.rounds = 1;
   a.read_targets = false;
@@ -87,11 +87,19 @@ static void init_pred(const data_t& train, preds_t& preds) {
 
 static int get_args(int argc, char* argv[], args_t& args) {
   int index, c, i=0;
-
   // option arguments
   opterr = 0;
-  while ((c = getopt (argc, argv, "a:d:ef:i:k:t:l:mop:r:svwzBFR")) != -1)
+  int idx = 0;
+  if(argc < 5) return 0;
+  args.train_file = argv[1];
+  args.test_files.push_back(argv[2]);
+  args.test_outs.push_back(argv[3]);
+  argc = argc - 4;
+  while ((c = getopt (argc, & argv[4], "a:d:ef:i:k:t:l:mop:r:svwzBFR")) != -1) {
+    idx++;
+    fprintf(stderr, "i ma here in get_args2\n");
     switch (c) {
+      fprintf(stderr, "[getopt()] c is %c, optarg is %s\n", c, optarg);
       case 'a': args.alpha = atof(optarg); break;
       case 'd':	args.depth = atoi(optarg); break;
       case 'e': args.loss = ALG_ENTROPY; break;
@@ -105,9 +113,9 @@ static int get_args(int argc, char* argv[], args_t& args) {
 		break;
       case 's': args.print_features=1; break;
       case 'i': args.missing_file = optarg; break;
-      case 'B': args.alg = ALG_BOOST; break;
+      case 'B': args.alg = ALG_FOREST; break;
       case 'F':	args.alg = ALG_FOREST; break;
-      case 'R': args.alg = ALG_REGRESSION; break;
+      case 'R': args.alg = ALG_FOREST; break;
       case 'm': args.pred = ALG_MODE; break;
       case 'v': args.verbose = 1; break;
       case 'w': args.read_weights = true; break;
@@ -123,18 +131,11 @@ static int get_args(int argc, char* argv[], args_t& args) {
       default:
 	return 0;
       }
+    } 
 
-  // non option arguments
-  if (argc-optind < 3)
-    return 0;
-  for (index = optind; index < argc; index++) {
-    if (i==0) args.train_file = argv[index];
-    else if (i%2) args.test_files.push_back(argv[index]);
-    else args.test_outs.push_back(argv[index]);
-    i++;
-  }
-  args.num_test = args.test_files.size();
-
+  // args.num_test = args.test_files.size();
+  // args.num_test = 1;
+  // args.read_targets = true;
   return 1;
 }
 

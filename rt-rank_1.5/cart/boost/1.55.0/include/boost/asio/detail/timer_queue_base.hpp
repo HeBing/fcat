@@ -58,9 +58,6 @@ private:
   timer_queue_base* next_;
 };
 
-template <typename Time_Traits>
-class timer_queue;
-
 } // namespace detail
 } // namespace asio
 } // namespace boost

@@ -229,6 +229,12 @@ inline typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBit
    limb_type offset = static_cast<limb_type>(s / cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits);
    limb_type shift  = static_cast<limb_type>(s % cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits);
 
+   /*
+   static const unsigned max_bits = max_bits<cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1> >::value;
+   static const unsigned max_limbs = max_bits / cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits
+      + (max_bits % cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_bits ? 1 : 0);
+   */
+
    unsigned ors = result.size();
    if((ors == 1) && (!*result.limbs()))
       return; // shifting zero yields zero.
@@ -238,7 +244,8 @@ inline typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBit
    rs += offset;
    result.resize(rs, rs);
    bool truncated = result.size() != rs;
-
+   if(truncated)
+      rs = result.size();
    typename cpp_int_backend<MinBits1, MaxBits1, SignType1, Checked1, Allocator1>::limb_pointer pr = result.limbs();
 
    if(offset > rs)
@@ -248,10 +255,11 @@ inline typename enable_if_c<!is_trivial_cpp_int<cpp_int_backend<MinBits1, MaxBit
       return;
    }
 
-   unsigned i = rs - result.size();
+   unsigned i = 0;
    if(shift)
    {
       // This code only works when shift is non-zero, otherwise we invoke undefined behaviour!
+      i = 0;
       if(!truncated)
       {
          if(rs > ors + offset)

@@ -1096,12 +1096,11 @@ private:
             case BOOST_XPR_CHAR_(char_type, ':'):
                 if(metacolon)
                 {
-                    BOOST_FALLTHROUGH;
             case BOOST_XPR_CHAR_(char_type, ')'):
                     ++cur;
                     return out;
                 }
-                BOOST_FALLTHROUGH;
+                // else fall-through
 
             default:
                 *out++ = *cur++;

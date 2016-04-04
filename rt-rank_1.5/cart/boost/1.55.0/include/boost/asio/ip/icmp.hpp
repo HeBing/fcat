@@ -49,21 +49,19 @@ public:
   /// Construct to represent the IPv4 ICMP protocol.
   static icmp v4()
   {
-    return icmp(BOOST_ASIO_OS_DEF(IPPROTO_ICMP),
-        BOOST_ASIO_OS_DEF(AF_INET));
+    return icmp(IPPROTO_ICMP, PF_INET);
   }
 
   /// Construct to represent the IPv6 ICMP protocol.
   static icmp v6()
   {
-    return icmp(BOOST_ASIO_OS_DEF(IPPROTO_ICMPV6),
-        BOOST_ASIO_OS_DEF(AF_INET6));
+    return icmp(IPPROTO_ICMPV6, PF_INET6);
   }
 
   /// Obtain an identifier for the type of the protocol.
   int type() const
   {
-    return BOOST_ASIO_OS_DEF(SOCK_RAW);
+    return SOCK_RAW;
   }
 
   /// Obtain an identifier for the protocol.

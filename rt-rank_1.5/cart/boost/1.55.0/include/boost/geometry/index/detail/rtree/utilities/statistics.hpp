@@ -13,7 +13,7 @@
 #define BOOST_GEOMETRY_INDEX_DETAIL_RTREE_UTILITIES_STATISTICS_HPP
 
 #include <algorithm>
-#include <boost/tuple/tuple.hpp>
+#include <tuple>
 
 namespace boost { namespace geometry { namespace index { namespace detail { namespace rtree { namespace utilities {
 

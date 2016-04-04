@@ -16,7 +16,7 @@
 
 namespace boost{ namespace multiprecision{ namespace detail{
 
-inline void round_string_up_at(std::string& s, int pos, int& expon)
+inline void round_string_up_at(std::string& s, int pos)
 {
    //
    // Rounds up a string representation of a number at pos:
@@ -24,18 +24,14 @@ inline void round_string_up_at(std::string& s, int pos, int& expon)
    if(pos < 0)
    {
       s.insert(0, 1, '1');
-      s.erase(s.size() - 1);
-      ++expon;
    }
    else if(s[pos] == '9')
    {
       s[pos] = '0';
-      round_string_up_at(s, pos - 1, expon);
+      round_string_up_at(s, pos - 1);
    }
    else
    {
-      if((pos == 0) && (s[pos] == '0') && (s.size() == 1))
-         ++expon;
       ++s[pos];
    }
 }
@@ -58,7 +54,7 @@ std::string convert_to_string(Backend b, std::streamsize digits, std::ios_base::
    std::string result;
    bool iszero = false;
    bool isneg = false;
-   exponent_type expon = 0;
+   exponent_type expon;
    std::streamsize org_digits = digits;
    BOOST_ASSERT(digits > 0);
 
@@ -95,21 +91,8 @@ std::string convert_to_string(Backend b, std::streamsize digits, std::ios_base::
       eval_log10(t, b);
       eval_floor(t, t);
       eval_convert_to(&expon, t);
-      if(-expon > std::numeric_limits<number<Backend> >::max_exponent10 - 3)
-      {
-         int e = -expon / 2;
-         Backend t2;
-         eval_pow(t2, ten, e);
-         eval_multiply(t, t2, b);
-         eval_multiply(t, t2);
-         if(expon & 1)
-            eval_multiply(t, ten);
-      }
-      else
-      {
-         eval_pow(t, ten, -expon);
-         eval_multiply(t, b);
-      }
+      eval_pow(t, ten, -expon);
+      eval_multiply(t, b);
       //
       // Make sure we're between [1,10) and adjust if not:
       //
@@ -154,14 +137,14 @@ std::string convert_to_string(Backend b, std::streamsize digits, std::ios_base::
          if((cdigit == 5) && (t.compare(ui_type(0)) == 0))
          {
             // Bankers rounding:
-            if((*result.rbegin() - '0') & 1)
+            if((*result.rend() - '0') & 1)
             {
-               round_string_up_at(result, result.size() - 1, expon);
+               round_string_up_at(result, result.size() - 1);
             }
          }
          else if(cdigit >= 5)
          {
-            round_string_up_at(result, result.size() - 1, expon);
+            round_string_up_at(result, result.size() - 1);
          }
       }
    }

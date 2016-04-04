@@ -15,10 +15,11 @@
 #ifndef BOOST_LOG_ATTRIBUTE_VALUE_HPP_INCLUDED_
 #define BOOST_LOG_ATTRIBUTE_VALUE_HPP_INCLUDED_
 
+#include <boost/intrusive_ptr.hpp>
 #include <boost/move/core.hpp>
-#include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/log/detail/config.hpp>
-#include <boost/utility/explicit_operator_bool.hpp>
+#include <boost/log/utility/explicit_operator_bool.hpp>
+#include <boost/log/utility/intrusive_ref_counter.hpp>
 #include <boost/log/utility/type_info_wrapper.hpp>
 #include <boost/log/utility/type_dispatch/type_dispatcher.hpp>
 #include <boost/log/attributes/attribute.hpp>
@@ -26,7 +27,7 @@
 #include <boost/log/attributes/value_visitation_fwd.hpp>
 #include <boost/log/detail/header.hpp>
 
-#ifdef BOOST_HAS_PRAGMA_ONCE
+#ifdef BOOST_LOG_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -114,7 +115,7 @@ public:
     /*!
      * Default constructor. Creates an empty (absent) attribute value.
      */
-    BOOST_DEFAULTED_FUNCTION(attribute_value(), {})
+    BOOST_LOG_DEFAULTED_FUNCTION(attribute_value(), {})
 
     /*!
      * Copy constructor
@@ -154,7 +155,7 @@ public:
     /*!
      * The operator checks if the attribute value is empty
      */
-    BOOST_EXPLICIT_OPERATOR_BOOL()
+    BOOST_LOG_EXPLICIT_OPERATOR_BOOL()
     /*!
      * The operator checks if the attribute value is empty
      */

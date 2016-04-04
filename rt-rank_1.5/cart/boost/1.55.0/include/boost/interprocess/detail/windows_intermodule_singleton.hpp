@@ -135,7 +135,6 @@ class windows_semaphore_based_map
          success = success && m_sem_map.open_or_create
             (name.c_str(), initial_count, max_count, perm, created);
          if(!success){
-            delete m;
             //winapi_xxx wrappers do the cleanup...
             throw int(0);
          }
@@ -218,9 +217,7 @@ class windows_semaphore_based_map
       scoped_lock<winapi_mutex_wrapper> lck(m_mtx_lock);
       m_sem_count.wait();
       if(0 == m_sem_count.value()){
-         map_type &map = this->get_map_unlocked();
-         BOOST_ASSERT(map.empty());
-         delete &map;
+         delete &this->get_map_unlocked();
       }
       //First close sems to protect this with the external mutex
       m_sem_map.close();

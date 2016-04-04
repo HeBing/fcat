@@ -90,56 +90,55 @@ struct centroid_point
 
 template
 <
-    typename Indexed,
+    typename Box,
     typename Point,
     std::size_t Dimension,
     std::size_t DimensionCount
 >
-struct centroid_indexed_calculator
+struct centroid_box_calculator
 {
     typedef typename select_coordinate_type
         <
-            Indexed, Point
+            Box, Point
         >::type coordinate_type;
-    static inline void apply(Indexed const& indexed, Point& centroid)
+    static inline void apply(Box const& box, Point& centroid)
     {
-        coordinate_type const c1 = get<min_corner, Dimension>(indexed);
-        coordinate_type const c2 = get<max_corner, Dimension>(indexed);
+        coordinate_type const c1 = get<min_corner, Dimension>(box);
+        coordinate_type const c2 = get<max_corner, Dimension>(box);
         coordinate_type m = c1 + c2;
-        coordinate_type const two = 2;
-        m /= two;
+        m /= 2.0;
 
         set<Dimension>(centroid, m);
 
-        centroid_indexed_calculator
+        centroid_box_calculator
             <
-                Indexed, Point,
+                Box, Point,
                 Dimension + 1, DimensionCount
-            >::apply(indexed, centroid);
+            >::apply(box, centroid);
     }
 };
 
 
-template<typename Indexed, typename Point, std::size_t DimensionCount>
-struct centroid_indexed_calculator<Indexed, Point, DimensionCount, DimensionCount>
+template<typename Box, typename Point, std::size_t DimensionCount>
+struct centroid_box_calculator<Box, Point, DimensionCount, DimensionCount>
 {
-    static inline void apply(Indexed const& , Point& )
+    static inline void apply(Box const& , Point& )
     {
     }
 };
 
 
-struct centroid_indexed
+struct centroid_box
 {
-    template<typename Indexed, typename Point, typename Strategy>
-    static inline void apply(Indexed const& indexed, Point& centroid,
+    template<typename Box, typename Point, typename Strategy>
+    static inline void apply(Box const& box, Point& centroid,
             Strategy const&)
     {
-        centroid_indexed_calculator
+        centroid_box_calculator
             <
-                Indexed, Point,
-                0, dimension<Indexed>::type::value
-            >::apply(indexed, centroid);
+                Box, Point,
+                0, dimension<Box>::type::value
+            >::apply(box, centroid);
     }
 };
 
@@ -280,12 +279,7 @@ struct centroid<Geometry, point_tag>
 
 template <typename Box>
 struct centroid<Box, box_tag>
-    : detail::centroid::centroid_indexed
-{};
-
-template <typename Segment>
-struct centroid<Segment, segment_tag>
-    : detail::centroid::centroid_indexed
+    : detail::centroid::centroid_box
 {};
 
 template <typename Ring>

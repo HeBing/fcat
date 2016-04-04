@@ -52,6 +52,68 @@ namespace boost
 {
   namespace math
   {
+     namespace detail{
+      template <class Dist>
+      inline typename Dist::value_type
+         inverse_discrete_quantile(
+            const Dist& dist,
+            const typename Dist::value_type& p,
+            const typename Dist::value_type& guess,
+            const typename Dist::value_type& multiplier,
+            const typename Dist::value_type& adder,
+            const policies::discrete_quantile<policies::integer_round_nearest>&,
+            boost::uintmax_t& max_iter);
+      template <class Dist>
+      inline typename Dist::value_type
+         inverse_discrete_quantile(
+            const Dist& dist,
+            const typename Dist::value_type& p,
+            const typename Dist::value_type& guess,
+            const typename Dist::value_type& multiplier,
+            const typename Dist::value_type& adder,
+            const policies::discrete_quantile<policies::integer_round_up>&,
+            boost::uintmax_t& max_iter);
+      template <class Dist>
+      inline typename Dist::value_type
+         inverse_discrete_quantile(
+            const Dist& dist,
+            const typename Dist::value_type& p,
+            const typename Dist::value_type& guess,
+            const typename Dist::value_type& multiplier,
+            const typename Dist::value_type& adder,
+            const policies::discrete_quantile<policies::integer_round_down>&,
+            boost::uintmax_t& max_iter);
+      template <class Dist>
+      inline typename Dist::value_type
+         inverse_discrete_quantile(
+            const Dist& dist,
+            const typename Dist::value_type& p,
+            const typename Dist::value_type& guess,
+            const typename Dist::value_type& multiplier,
+            const typename Dist::value_type& adder,
+            const policies::discrete_quantile<policies::integer_round_outwards>&,
+            boost::uintmax_t& max_iter);
+      template <class Dist>
+      inline typename Dist::value_type
+         inverse_discrete_quantile(
+            const Dist& dist,
+            const typename Dist::value_type& p,
+            const typename Dist::value_type& guess,
+            const typename Dist::value_type& multiplier,
+            const typename Dist::value_type& adder,
+            const policies::discrete_quantile<policies::integer_round_inwards>&,
+            boost::uintmax_t& max_iter);
+      template <class Dist>
+      inline typename Dist::value_type
+         inverse_discrete_quantile(
+            const Dist& dist,
+            const typename Dist::value_type& p,
+            const typename Dist::value_type& guess,
+            const typename Dist::value_type& multiplier,
+            const typename Dist::value_type& adder,
+            const policies::discrete_quantile<policies::real>&,
+            boost::uintmax_t& max_iter);
+     }
     namespace poisson_detail
     {
       // Common error checking routines for Poisson distribution functions.
@@ -147,7 +209,7 @@ namespace boost
       typedef RealType value_type;
       typedef Policy policy_type;
 
-      poisson_distribution(RealType l_mean = 1) : m_l(l_mean) // mean (lambda).
+      poisson_distribution(RealType mean = 1) : m_l(mean) // mean (lambda).
       { // Expected mean number of events that occur during the given interval.
         RealType r;
         poisson_detail::check_dist(
@@ -434,7 +496,7 @@ namespace boost
       return detail::inverse_discrete_quantile(
          dist,
          p,
-         false,
+         1-p,
          guess,
          factor,
          RealType(1),
@@ -503,8 +565,8 @@ namespace boost
 
       return detail::inverse_discrete_quantile(
          dist,
+         1-q,
          q,
-         true,
          guess,
          factor,
          RealType(1),

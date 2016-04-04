@@ -17,8 +17,6 @@
 
 #include <boost/asio/detail/config.hpp>
 
-#if !defined(BOOST_ASIO_WINDOWS_RUNTIME)
-
 #if defined(BOOST_ASIO_WINDOWS) \
   || defined(__CYGWIN__) \
   || defined(__SYMBIAN32__)
@@ -87,7 +85,5 @@ private:
 #endif // defined(BOOST_ASIO_WINDOWS)
        // || defined(__CYGWIN__)
        // || defined(__SYMBIAN32__)
-
-#endif // !defined(BOOST_ASIO_WINDOWS_RUNTIME)
 
 #endif // BOOST_ASIO_DETAIL_SOCKET_SELECT_INTERRUPTER_HPP

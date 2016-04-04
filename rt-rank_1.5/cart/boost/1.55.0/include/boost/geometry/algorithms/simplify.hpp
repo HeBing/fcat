@@ -252,9 +252,7 @@ inline void simplify(Geometry const& geometry, Geometry& out,
 {
     concept::check<Geometry>();
 
-    BOOST_CONCEPT_ASSERT(
-        (concept::SimplifyStrategy<Strategy, typename point_type<Geometry>::type>)
-    );
+    BOOST_CONCEPT_ASSERT( (geometry::concept::SimplifyStrategy<Strategy>) );
 
     geometry::clear(out);
 
@@ -324,9 +322,7 @@ inline void simplify_insert(Geometry const& geometry, OutputIterator out,
                               Distance const& max_distance, Strategy const& strategy)
 {
     concept::check<Geometry const>();
-    BOOST_CONCEPT_ASSERT(
-        (concept::SimplifyStrategy<Strategy, typename point_type<Geometry>::type>)
-    );
+    BOOST_CONCEPT_ASSERT( (geometry::concept::SimplifyStrategy<Strategy>) );
 
     dispatch::simplify_insert<Geometry>::apply(geometry, out, max_distance, strategy);
 }

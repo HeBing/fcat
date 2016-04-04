@@ -15,8 +15,9 @@
 #ifndef BOOST_LOG_ATTRIBUTES_MUTABLE_CONSTANT_HPP_INCLUDED_
 #define BOOST_LOG_ATTRIBUTES_MUTABLE_CONSTANT_HPP_INCLUDED_
 
+#include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/static_assert.hpp>
-#include <boost/smart_ptr/intrusive_ptr.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/move/core.hpp>
 #include <boost/move/utility.hpp>
@@ -28,7 +29,7 @@
 #include <boost/log/attributes/attribute_value_impl.hpp>
 #include <boost/log/detail/header.hpp>
 
-#ifdef BOOST_HAS_PRAGMA_ONCE
+#ifdef BOOST_LOG_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -89,7 +90,7 @@ public:
 
 protected:
     //! Factory implementation
-    class BOOST_SYMBOL_VISIBLE impl :
+    class BOOST_LOG_VISIBLE impl :
         public attribute::impl
     {
     private:
@@ -222,7 +223,7 @@ public:
 
 protected:
     //! Factory implementation
-    class BOOST_SYMBOL_VISIBLE impl :
+    class BOOST_LOG_VISIBLE impl :
         public attribute::impl
     {
     private:

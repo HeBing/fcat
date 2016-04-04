@@ -142,7 +142,6 @@ struct node_disposer
     {
         node_pointer n = static_cast<node_pointer>(base);
         n->clear_subtree(alloc_);
-        alloc_.destroy(n);
         alloc_.deallocate(n, 1);
     }
 

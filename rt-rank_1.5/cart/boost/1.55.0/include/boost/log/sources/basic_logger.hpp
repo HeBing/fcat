@@ -20,6 +20,7 @@
 #include <utility>
 #include <ostream>
 #include <boost/assert.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/move/core.hpp>
 #include <boost/move/utility.hpp>
 #include <boost/utility/addressof.hpp>
@@ -40,7 +41,7 @@
 #include <boost/log/sources/threading_models.hpp>
 #include <boost/log/detail/header.hpp>
 
-#ifdef BOOST_HAS_PRAGMA_ONCE
+#ifdef BOOST_LOG_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -284,7 +285,7 @@ protected:
     }
 
     //! Assignment is closed (should be implemented through copy and swap in the final class)
-    BOOST_DELETED_FUNCTION(basic_logger& operator= (basic_logger const&))
+    BOOST_LOG_DELETED_FUNCTION(basic_logger& operator= (basic_logger const&))
 };
 
 /*!
@@ -598,7 +599,7 @@ protected:
 
 #define BOOST_LOG_FORWARD_LOGGER_CONSTRUCTORS_IMPL(class_type, typename_keyword)\
     public:\
-        BOOST_DEFAULTED_FUNCTION(class_type(), {})\
+        BOOST_LOG_DEFAULTED_FUNCTION(class_type(), {})\
         class_type(class_type const& that) : class_type::logger_base(\
             static_cast< typename_keyword() class_type::logger_base const& >(that)) {}\
         class_type(BOOST_RV_REF(class_type) that) : class_type::logger_base(\

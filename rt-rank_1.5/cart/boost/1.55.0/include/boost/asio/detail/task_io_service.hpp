@@ -26,6 +26,7 @@
 #include <boost/asio/detail/mutex.hpp>
 #include <boost/asio/detail/op_queue.hpp>
 #include <boost/asio/detail/reactor_fwd.hpp>
+#include <boost/asio/detail/task_io_service_fwd.hpp>
 #include <boost/asio/detail/task_io_service_operation.hpp>
 
 #include <boost/asio/detail/push_options.hpp>
@@ -33,8 +34,6 @@
 namespace boost {
 namespace asio {
 namespace detail {
-
-struct task_io_service_thread_info;
 
 class task_io_service
   : public boost::asio::detail::service_base<task_io_service>

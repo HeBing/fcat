@@ -21,43 +21,33 @@
 #include <boost/detail/workaround.hpp>
 #include <boost/foreach_fwd.hpp>
 #include <boost/limits.hpp>
-#include <boost/move/core.hpp>
 #include <boost/mpl/bool.hpp>
 #include <boost/mpl/push_front.hpp>
 #include <boost/multi_index/detail/access_specifier.hpp>
 #include <boost/multi_index/detail/auto_space.hpp>
 #include <boost/multi_index/detail/bucket_array.hpp>
-#include <boost/multi_index/detail/do_not_copy_elements_tag.hpp>
 #include <boost/multi_index/detail/hash_index_iterator.hpp>
 #include <boost/multi_index/detail/index_node_base.hpp>
 #include <boost/multi_index/detail/modify_key_adaptor.hpp>
 #include <boost/multi_index/detail/safe_ctr_proxy.hpp>
 #include <boost/multi_index/detail/safe_mode.hpp>
 #include <boost/multi_index/detail/scope_guard.hpp>
-#include <boost/multi_index/detail/vartempl_support.hpp>
 #include <boost/multi_index/hashed_index_fwd.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <cstddef>
 #include <functional>
 #include <utility>
 
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-#include <initializer_list>
-#endif
-
 #if !defined(BOOST_MULTI_INDEX_DISABLE_SERIALIZATION)
 #include <boost/serialization/nvp.hpp>
 #endif
 
 #if defined(BOOST_MULTI_INDEX_ENABLE_INVARIANT_CHECKING)
-#define BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF(x)                 \
-  detail::scope_guard BOOST_JOIN(check_invariant_,__LINE__)=                 \
-    detail::make_obj_guard(x,&hashed_index::check_invariant_);               \
-  BOOST_JOIN(check_invariant_,__LINE__).touch();
 #define BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT                       \
-  BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF(*this)
+  detail::scope_guard BOOST_JOIN(check_invariant_,__LINE__)=                 \
+    detail::make_obj_guard(*this,&hashed_index::check_invariant_);           \
+  BOOST_JOIN(check_invariant_,__LINE__).touch();
 #else
-#define BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF(x)
 #define BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT
 #endif
 
@@ -201,12 +191,6 @@ private:
   typedef typename call_traits<
     key_type>::param_type                              key_param_type;
 
-  /* Needed to avoid commas in BOOST_MULTI_INDEX_OVERLOADS_TO_VARTEMPL
-   * expansion.
-   */
-
-  typedef std::pair<iterator,bool>                     emplace_return_type;
-
 public:
 
   /* construct/destroy/copy
@@ -220,15 +204,6 @@ public:
     this->final()=x.final();
     return *this;
   }
-
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-  hashed_index<KeyFromValue,Hash,Pred,SuperMeta,TagList,Category>& operator=(
-    std::initializer_list<value_type> list)
-  {
-    this->final()=list;
-    return *this;
-  }
-#endif
 
   allocator_type get_allocator()const
   {
@@ -273,27 +248,14 @@ public:
 
   /* modifiers */
 
-  BOOST_MULTI_INDEX_OVERLOADS_TO_VARTEMPL(
-    emplace_return_type,emplace,emplace_impl)
-
-  BOOST_MULTI_INDEX_OVERLOADS_TO_VARTEMPL_EXTRA_ARG(
-    iterator,emplace_hint,emplace_hint_impl,iterator,position)
-
-  std::pair<iterator,bool> insert(const value_type& x)
+  std::pair<iterator,bool> insert(value_param_type x)
   {
     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
     std::pair<final_node_type*,bool> p=this->final_insert_(x);
     return std::pair<iterator,bool>(make_iterator(p.first),p.second);
   }
 
-  std::pair<iterator,bool> insert(BOOST_RV_REF(value_type) x)
-  {
-    BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
-    std::pair<final_node_type*,bool> p=this->final_insert_rv_(x);
-    return std::pair<iterator,bool>(make_iterator(p.first),p.second);
-  }
-
-  iterator insert(iterator position,const value_type& x)
+  iterator insert(iterator position,value_param_type x)
   {
     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
@@ -303,29 +265,13 @@ public:
     return make_iterator(p.first);
   }
     
-  iterator insert(iterator position,BOOST_RV_REF(value_type) x)
-  {
-    BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
-    BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
-    BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
-    std::pair<final_node_type*,bool> p=this->final_insert_rv_(
-      x,static_cast<final_node_type*>(position.get_node()));
-    return make_iterator(p.first);
-  }
-
   template<typename InputIterator>
   void insert(InputIterator first,InputIterator last)
   {
     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
-    for(;first!=last;++first)this->final_insert_ref_(*first);
+    iterator hint=end();
+    for(;first!=last;++first)hint=insert(hint,*first);
   }
-
-#if !defined(BOOST_NO_CXX11_HDR_INITIALIZER_LIST)
-  void insert(std::initializer_list<value_type> list)
-  {
-    insert(list.begin(),list.end());
-  }
-#endif
 
   iterator erase(iterator position)
   {
@@ -379,23 +325,13 @@ public:
     return first;
   }
 
-  bool replace(iterator position,const value_type& x)
+  bool replace(iterator position,value_param_type x)
   {
     BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
     BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
     BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
     return this->final_replace_(
-      x,static_cast<final_node_type*>(position.get_node()));
-  }
-
-  bool replace(iterator position,BOOST_RV_REF(value_type) x)
-  {
-    BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
-    BOOST_MULTI_INDEX_CHECK_DEREFERENCEABLE_ITERATOR(position);
-    BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
-    BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
-    return this->final_replace_rv_(
       x,static_cast<final_node_type*>(position.get_node()));
   }
 
@@ -474,7 +410,6 @@ public:
   void swap(hashed_index<KeyFromValue,Hash,Pred,SuperMeta,TagList,Category>& x)
   {
     BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
-    BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF(x);
     this->final_swap_(x.final());
   }
 
@@ -699,25 +634,6 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
      */
   }
 
-  hashed_index(
-    const hashed_index<KeyFromValue,Hash,Pred,SuperMeta,TagList,Category>& x,
-    do_not_copy_elements_tag):
-    super(x,do_not_copy_elements_tag()),
-
-#if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
-    safe_super(),
-#endif
-
-    key(x.key),
-    hash_(x.hash_),
-    eq_(x.eq_),
-    buckets(x.get_allocator(),header()->impl(),0),
-    mlf(1.0f),
-    first_bucket(buckets.size())
-  {
-     calculate_max_load();
-  }
-
   ~hashed_index()
   {
     /* the container is guaranteed to be empty by now */
@@ -773,9 +689,8 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
 
     super::copy_(x,map);
   }
-  
-  template<typename Variant>
-  node_type* insert_(value_param_type v,node_type* x,Variant variant)
+
+  node_type* insert_(value_param_type v,node_type* x)
   {
     reserve(size()+1);
 
@@ -783,7 +698,7 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
     node_impl_pointer pos=buckets.at(buc);
     if(!link_point(v,pos,Category()))return node_type::from_impl(pos);
 
-    node_type* res=static_cast<node_type*>(super::insert_(v,x,variant));
+    node_type* res=static_cast<node_type*>(super::insert_(v,x));
     if(res==x){
       link(x,pos);
       if(first_bucket>buc)first_bucket=buc;
@@ -791,9 +706,7 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
     return res;
   }
 
-  template<typename Variant>
-  node_type* insert_(
-    value_param_type v,node_type* position,node_type* x,Variant variant)
+  node_type* insert_(value_param_type v,node_type* position,node_type* x)
   {
     reserve(size()+1);
 
@@ -801,8 +714,7 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
     node_impl_pointer pos=buckets.at(buc);
     if(!link_point(v,pos,Category()))return node_type::from_impl(pos);
 
-    node_type* res=
-      static_cast<node_type*>(super::insert_(v,position,x,variant));
+    node_type* res=static_cast<node_type*>(super::insert_(v,position,x));
     if(res==x){
       link(x,pos);
       if(first_bucket>buc)first_bucket=buc;
@@ -864,26 +776,10 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
     super::swap_(x);
   }
 
-  void swap_elements_(
-    hashed_index<KeyFromValue,Hash,Pred,SuperMeta,TagList,Category>& x)
-  {
-    buckets.swap(x.buckets);
-    std::swap(mlf,x.mlf);
-    std::swap(max_load,x.max_load);
-    std::swap(first_bucket,x.first_bucket);
-
-#if defined(BOOST_MULTI_INDEX_ENABLE_SAFE_MODE)
-    safe_super::swap(x);
-#endif
-
-    super::swap_elements_(x);
-  }
-
-  template<typename Variant>
-  bool replace_(value_param_type v,node_type* x,Variant variant)
+  bool replace_(value_param_type v,node_type* x)
   {
     if(eq_(key(v),key(x->value()))){
-      return super::replace_(v,x,variant);
+      return super::replace_(v,x);
     }
 
     node_impl_pointer y=prev(x);
@@ -892,7 +788,7 @@ BOOST_MULTI_INDEX_PROTECTED_IF_MEMBER_TEMPLATE_FRIENDS:
     BOOST_TRY{
       std::size_t       buc=find_bucket(v);
       node_impl_pointer pos=buckets.at(buc);
-      if(link_point(v,pos,Category())&&super::replace_(v,x,variant)){
+      if(link_point(v,pos,Category())&&super::replace_(v,x)){
         link(x,pos);
         if(first_bucket>buc){
           first_bucket=buc;
@@ -1261,29 +1157,6 @@ private:
   }
 #endif
 
-  template<BOOST_MULTI_INDEX_TEMPLATE_PARAM_PACK>
-  std::pair<iterator,bool> emplace_impl(BOOST_MULTI_INDEX_FUNCTION_PARAM_PACK)
-  {
-    BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
-    std::pair<final_node_type*,bool>p=
-      this->final_emplace_(BOOST_MULTI_INDEX_FORWARD_PARAM_PACK);
-    return std::pair<iterator,bool>(make_iterator(p.first),p.second);
-  }
-
-  template<BOOST_MULTI_INDEX_TEMPLATE_PARAM_PACK>
-  iterator emplace_hint_impl(
-    iterator position,BOOST_MULTI_INDEX_FUNCTION_PARAM_PACK)
-  {
-    BOOST_MULTI_INDEX_CHECK_VALID_ITERATOR(position);
-    BOOST_MULTI_INDEX_CHECK_IS_OWNER(position,*this);
-    BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT;
-    std::pair<final_node_type*,bool>p=
-      this->final_emplace_hint_(
-        static_cast<final_node_type*>(position.get_node()),
-        BOOST_MULTI_INDEX_FORWARD_PARAM_PACK);
-    return make_iterator(p.first);
-  }
-
   key_from_value               key;
   hasher                       hash_;
   key_equal                    eq_;
@@ -1384,6 +1257,5 @@ inline boost::mpl::true_* boost_foreach_is_noncopyable(
 }
 
 #undef BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT
-#undef BOOST_MULTI_INDEX_HASHED_INDEX_CHECK_INVARIANT_OF
 
 #endif

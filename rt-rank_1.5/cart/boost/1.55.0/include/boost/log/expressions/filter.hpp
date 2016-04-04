@@ -23,7 +23,7 @@
 #include <boost/log/detail/light_function.hpp>
 #include <boost/log/detail/header.hpp>
 
-#ifdef BOOST_HAS_PRAGMA_ONCE
+#ifdef BOOST_LOG_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -71,7 +71,7 @@ public:
     {
     }
     /*!
-     * Move constructor. The moved-from filter is left in an unspecified state.
+     * Move constructor
      */
     filter(BOOST_RV_REF(filter) that) BOOST_NOEXCEPT : m_Filter(boost::move(that.m_Filter))
     {
@@ -92,7 +92,7 @@ public:
     }
 
     /*!
-     * Move assignment. The moved-from filter is left in an unspecified state.
+     * Move assignment.
      */
     filter& operator= (BOOST_RV_REF(filter) that) BOOST_NOEXCEPT
     {

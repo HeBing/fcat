@@ -26,10 +26,10 @@
 #include <boost/log/detail/code_conversion.hpp>
 #include <boost/log/utility/string_literal_fwd.hpp>
 #include <boost/log/utility/formatting_ostream_fwd.hpp>
-#include <boost/utility/explicit_operator_bool.hpp>
+#include <boost/log/utility/explicit_operator_bool.hpp>
 #include <boost/log/detail/header.hpp>
 
-#ifdef BOOST_HAS_PRAGMA_ONCE
+#ifdef BOOST_LOG_HAS_PRAGMA_ONCE
 #pragma once
 #endif
 
@@ -121,8 +121,8 @@ public:
         {
         }
 
-        BOOST_DELETED_FUNCTION(sentry(sentry const&))
-        BOOST_DELETED_FUNCTION(sentry& operator= (sentry const&))
+        BOOST_LOG_DELETED_FUNCTION(sentry(sentry const&))
+        BOOST_LOG_DELETED_FUNCTION(sentry& operator= (sentry const&))
     };
 
 private:
@@ -276,7 +276,7 @@ public:
     static bool sync_with_stdio(bool sync = true) { return ostream_type::sync_with_stdio(sync); }
 
     // std::basic_ios method forwarders
-    BOOST_EXPLICIT_OPERATOR_BOOL()
+    BOOST_LOG_EXPLICIT_OPERATOR_BOOL()
     bool operator! () const { return !m_stream; }
 
     iostate rdstate() const { return m_stream.rdstate(); }
@@ -545,24 +545,6 @@ private:
         m_stream.fill(static_cast< char_type >(' '));
     }
 
-    basic_formatting_ostream& formatted_write(const char_type* p, std::streamsize size)
-    {
-        sentry guard(*this);
-        if (guard)
-        {
-            m_stream.flush();
-
-            if (m_stream.width() <= size)
-                m_streambuf.storage()->append(p, static_cast< std::size_t >(size));
-            else
-                this->aligned_write(p, size);
-
-            m_stream.width(0);
-        }
-
-        return *this;
-    }
-
     template< typename OtherCharT >
     basic_formatting_ostream& formatted_write(const OtherCharT* p, std::streamsize size)
     {
@@ -570,11 +552,26 @@ private:
         if (guard)
         {
             m_stream.flush();
+            string_type* const storage = m_streambuf.storage();
 
-            if (m_stream.width() <= size)
-                aux::code_convert(p, static_cast< std::size_t >(size), *m_streambuf.storage(), m_stream.getloc());
+            const std::streamsize w = m_stream.width();
+            if (w <= size)
+            {
+                aux::code_convert(p, static_cast< std::size_t >(size), *storage, m_stream.getloc());
+            }
             else
-                this->aligned_write(p, size);
+            {
+                const bool align_left = (m_stream.flags() & ostream_type::adjustfield) == ostream_type::left;
+                typename string_type::size_type const alignment_size =
+                    static_cast< typename string_type::size_type >(w - size);
+                if (!align_left)
+                    storage->append(alignment_size, m_stream.fill());
+
+                aux::code_convert(p, static_cast< std::size_t >(size), *storage, m_stream.getloc());
+
+                if (align_left)
+                    storage->append(alignment_size, m_stream.fill());
+            }
 
             m_stream.width(0);
         }
@@ -582,15 +579,10 @@ private:
         return *this;
     }
 
-    void aligned_write(const char_type* p, std::streamsize size);
-
-    template< typename OtherCharT >
-    void aligned_write(const OtherCharT* p, std::streamsize size);
-
     //! Copy constructor (closed)
-    BOOST_DELETED_FUNCTION(basic_formatting_ostream(basic_formatting_ostream const& that))
+    BOOST_LOG_DELETED_FUNCTION(basic_formatting_ostream(basic_formatting_ostream const& that))
     //! Assignment (closed)
-    BOOST_DELETED_FUNCTION(basic_formatting_ostream& operator= (basic_formatting_ostream const& that))
+    BOOST_LOG_DELETED_FUNCTION(basic_formatting_ostream& operator= (basic_formatting_ostream const& that))
 };
 
 template< typename CharT, typename TraitsT, typename AllocatorT >
@@ -664,44 +656,6 @@ BOOST_CONSTEXPR_OR_CONST typename basic_formatting_ostream< CharT, TraitsT, Allo
 template< typename CharT, typename TraitsT, typename AllocatorT >
 BOOST_CONSTEXPR_OR_CONST typename basic_formatting_ostream< CharT, TraitsT, AllocatorT >::event basic_formatting_ostream< CharT, TraitsT, AllocatorT >::copyfmt_event;
 
-template< typename CharT, typename TraitsT, typename AllocatorT >
-void basic_formatting_ostream< CharT, TraitsT, AllocatorT >::aligned_write(const char_type* p, std::streamsize size)
-{
-    string_type* const storage = m_streambuf.storage();
-    typename string_type::size_type const alignment_size =
-        static_cast< typename string_type::size_type >(m_stream.width() - size);
-    const bool align_left = (m_stream.flags() & ostream_type::adjustfield) == ostream_type::left;
-    if (align_left)
-    {
-        storage->append(p, static_cast< std::size_t >(size));
-        storage->append(alignment_size, m_stream.fill());
-    }
-    else
-    {
-        storage->append(alignment_size, m_stream.fill());
-        storage->append(p, static_cast< std::size_t >(size));
-    }
-}
-
-template< typename CharT, typename TraitsT, typename AllocatorT >
-template< typename OtherCharT >
-void basic_formatting_ostream< CharT, TraitsT, AllocatorT >::aligned_write(const OtherCharT* p, std::streamsize size)
-{
-    string_type* const storage = m_streambuf.storage();
-    typename string_type::size_type const alignment_size =
-        static_cast< typename string_type::size_type >(m_stream.width() - size);
-    const bool align_left = (m_stream.flags() & ostream_type::adjustfield) == ostream_type::left;
-    if (align_left)
-    {
-        aux::code_convert(p, static_cast< std::size_t >(size), *storage, m_stream.getloc());
-        storage->append(alignment_size, m_stream.fill());
-    }
-    else
-    {
-        storage->append(alignment_size, m_stream.fill());
-        aux::code_convert(p, static_cast< std::size_t >(size), *storage, m_stream.getloc());
-    }
-}
 
 template< typename CharT, typename TraitsT, typename AllocatorT, typename T >
 inline basic_formatting_ostream< CharT, TraitsT, AllocatorT >&

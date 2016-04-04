@@ -776,6 +776,7 @@ void save_in_edges(Archive& ar, Graph const& g, bidirectionalS)
 
     process_id_type id = g.processor();
 
+    typedef std::pair<local_vertex_descriptor, vertex_descriptor> in_edge;
     std::vector<edge_descriptor> saved_in_edges;
 
     BGL_FORALL_VERTICES_T(v, g, Graph) 
@@ -829,6 +830,8 @@ void save_edges(Archive& ar, Graph const& g, DirectedS)
         process_id_type;
     typedef typename graph_traits<
         Graph>::vertex_descriptor vertex_descriptor;
+    typedef typename graph_traits<
+        Graph>::edge_descriptor edge_descriptor;
 
     typedef typename Graph::edge_property_type edge_property_type;
 
@@ -877,6 +880,8 @@ template <PBGL_DISTRIB_ADJLIST_TEMPLATE_PARMS>
 template <class IStreamConstructibleArchive>
 void PBGL_DISTRIB_ADJLIST_TYPE::load(std::string const& filename)
 {
+    typedef typename config_type::VertexListS vertex_list_selector;
+
     process_group_type pg = process_group();
     process_id_type id = process_id(pg);
 
