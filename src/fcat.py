@@ -499,7 +499,7 @@ def main(argv) :
 
 
   # reserve control for inference
-  m = 500
+  m = 100
   reserveControl(trainFile, m)
 
   # add benchmark
@@ -553,10 +553,10 @@ def main(argv) :
   model.append('voting')
 
   tmpmodel = list(set([ a.split('_')[0] for a in model]))
-  outputFile = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_result'] )
-
-  writeFormatted(testYs, testResult, outputFile)
+  # outputFile = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_result'] )
+  outputFileResult = outputFile + '_result'
+  writeFormatted(testYs, testResult, outputFileResult)
   
   # conduct inference
   start = time.time()
@@ -599,9 +599,9 @@ def main(argv) :
   print '- writing to output '
   print '- ', outputFile
   print '---------------------------------------------'
-  outputFileROC = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_rocResult'] )
-
+  # outputFileROC = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_rocResult'] )
+  outputFileROC = outputFile + '_rocResult'
   f = open(outputFileROC, 'w')
 
   lenROC = [ len(a) for a in testROC ]
@@ -621,9 +621,9 @@ def main(argv) :
   f.close()
 
   # write est FDR
-  outputFileEstFDR = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_estFDRResult'] )
-
+  # outputFileEstFDR = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_estFDRResult'] )
+  outputFileEstFDR = outputFile + '_estFDRResult'
   f = open(outputFileEstFDR, 'w')
 
   lenEstFDR = [ len(a) for a in estFDR ]
@@ -644,9 +644,9 @@ def main(argv) :
   f.close()
 
   # write true FDR
-  outputFileTrueFDR = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_trueFDRResult'] )
-
+  # outputFileTrueFDR = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_trueFDRResult'] )
+  outputFileTrueFDR = outputFile + '_trueFDRResult'
   f = open(outputFileTrueFDR, 'w')
 
   lenTrueFDR = [ len(a) for a in trueFDR ]
@@ -667,8 +667,9 @@ def main(argv) :
   f.close()
 
   # write AUC
-  outputFileAUC = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_AUC'] )
+  # outputFileAUC = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_AUC'] )
+  outputFileAUC = outputFile + '_AUC'
   f = open(outputFileAUC, 'w')
   f.write(' '.join(model))
   f.write('\n')
