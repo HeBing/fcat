@@ -2,17 +2,12 @@
 #----------------------------------------
 # model stacking
 # @NOTE: this script uses
-#    a naive linear combination
+#    a linear combination
 #    to integrate results from 
-#    base learner (not boosting)
+#    base learner
 # @NOTE: benchmark is automatically added
 # @NOTE: train data's control is automaticall
 #   extracted and used for inference
-# @NOTE: only top 3 models are averaged
-# @NOTE: pass weights and control prediction
-#   to R too
-# @NOTE: R is too slow, only using it for plot
-#   add the other functions here
 #-----------------------------------------
 import shlex, subprocess, sys
 import os, re, time
@@ -78,7 +73,7 @@ def menu(argv) :
   
   
 #-----
-# newly added several functions for cross validation
+# functions for cross validation
 #---
 
 def splitFileCV(file, fold):
@@ -88,9 +83,6 @@ def splitFileCV(file, fold):
   # file_cv1_test, file_cv1_train
   # file_cv2_test, file_cv2_train
   # default output dir is the dir where file is in
-  # print '----------------------------------------'
-  # print '- spliting files for cross validation'
-  # print '----------------------------------------'
   f = open(file, 'r')
   lines = f.readlines()
   f.close()
@@ -136,29 +128,22 @@ def crossValidated(model, file, fold):
           (mymodel, trainFileTmp, trainFileTmp, mymodel)
       else : # liblinear model
         (modelname, modelc) = mymodel.split('_')
-        # print '-- with c = %s' % modelc
         cmd = './trainModel -m %s -c %s -t %s -o %s_trained%s' %  \
           (modelname, modelc, trainFileTmp, trainFileTmp, mymodel)
 
-      # print '- cmd is %s' % cmd 
-
-      #  run model
-      # train models first
+      # train models
       myargs = shlex.split(cmd);
       start = time.time()
       p = subprocess.Popen(myargs, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
       for x in p.stdout.read().split('\n') :
         if re.search(r"Accuracy|nonzero", x) :
-          # print x
           continue
       for x in p.stderr.read().split('\n') :
         if re.search(r"Accuracy|core", x) :
-          # print x
           continue
       elapsed = time.time() - start
-      # print 'elapsed time: %.8f' % elapsed
 
-  # now prediction
+  # make prediction
   for k in range(fold):
     trainFileTmp = file+'_cv'+str(k+1)+'_train'
     testFileTmp = file+'_cv'+str(k+1)+'_test'
@@ -237,7 +222,6 @@ def addDiffPenalty(model,cs) :
 #---
 def trainModels(trainFile, testFile, model) :
   for mymodel in model :
-    # print '------------------------------------'
     print '- training %s using %s' % (mymodel, trainFile)
 
     if os.path.isfile('%s_trained%s' % (trainFile, mymodel)) :
@@ -254,19 +238,15 @@ def trainModels(trainFile, testFile, model) :
       cmd = './trainModel -m %s -c %s -t %s -o %s_trained%s' %  \
         (modelname, modelc, trainFile, trainFile, mymodel)
 
-    # print '- cmd is %s' % cmd
-
     # run model
     myargs = shlex.split(cmd);
     start = time.time()
     p = subprocess.Popen(myargs, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     for x in p.stdout.read().split('\n') :
       if re.search(r"Accuracy|nonzero", x) :
-        #print x
         continue
     for x in p.stderr.read().split('\n') :
        if re.search(r"Accuracy|core", x) :
-         #print x
          continue
     elapsed = time.time() - start
     # print 'elapsed time: %.8f' % elapsed
@@ -297,33 +277,26 @@ def predictModels(trainFile, testFile, model):
     p = subprocess.Popen(myargs, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
     for x in p.stdout.read().split('\n') :
       if re.search(r"Accuracy", x) :
-        # print x  
         continue
     for x in p.stderr.read().split('\n') :
       if re.search(r"Accuracy|core", x) :
-        # print x
         continue
     elapsed = time.time() - start
-    # print 'elapsed time: %.8f' % elapsed
 
 #---
 # collectResults
 #---
 def collectResults(trainFile, testFile, model) :
   
-  # print '------------------------------------'
-  # print '- collecting results for %s ' % testFile
 
-  # first read ys
+  # read ys
   p = subprocess.Popen(shlex.split('cut -f 1 -d\  %s' % testFile),stdout=subprocess.PIPE)
   ys = [ int(a) for a in p.stdout.read().split('\n') if len(a) > 0 ] # last element is ''
   
   result = []
-  # then read result
-  # print 'models is ', model
+  # read result
   for mymodel in model :
     tmpResultFile = '%s_result%sBy%s' % (testFile, mymodel, os.path.basename(trainFile)[:4])
-    # print ' -- collecting resutls for %s' % tmpResultFile
     file = open(tmpResultFile, "r")
     if re.match(r"LogisticRegression|Benchmark", mymodel) :
       tmp = file.read().splitlines()
@@ -372,12 +345,11 @@ def getVotingResults(result, weights, top) :
   if len(result) != len(weights) :
     print "len of result is not equal to len of weights"
     return -1
-  topWeights = sorted(weights, reverse = True)[:2]
+  topWeights = sorted(weights, reverse = True)[:top]
   for i in range(len(result[0])) :
     tmp = 0.0
     for j in range(len(weights)) :
       if weights[j] in topWeights :
-        # renomalize topWeights
         tmp += float(result[j][i])*(weights[j]/sum(topWeights))
     votedResult.append(tmp)
 
@@ -400,8 +372,6 @@ def writeFormatted(ys, result, outputFile) :
 
 #---
 # reserveControl
-# split train into train and control
-# include m controls in trainFile
 #---
 def reserveControl(trainFile, m) :
   if os.path.isfile(trainFile + '_train'):
@@ -427,23 +397,18 @@ def reserveControl(trainFile, m) :
 
 
 #----------------------------------
-# @UPDATE: combine ROC,estFDR,trueFDR
-#   into one inference function
-#   to speed up the code
+#  AUC
 #-----------------------------------
 def calcAUC(y,x) :
   if len(x) != len(y):
     print 'x y lens differ!'
     return -1
-  # assumed that y, x are sorted in decreasing order
   area = 0.0
   for i in range(1,len(y)):
     area += 1.0/2.0*(y[i-1]+y[i])*(x[i]-x[i-1])*(-1)
   return area
 
 
-## get index to unique values in a list
-## ref: http://stackoverflow.com/questions/27411142/how-to-get-lists-of-indices-to-unique-values-efficiently
 def uniqueValueIdx(a):
   d = collections.defaultdict(list)
   for i,j in enumerate(a):
@@ -451,38 +416,25 @@ def uniqueValueIdx(a):
   return d
 
 def doInference(Y, pred, ctrl):
-  # y axis for all 3 plots
   sens = []
 
-  # x axis for each of 3 plots
   FPR = []
   estFDR = []
   trueFDR = []
 
-  # auc summary for each plot
   auc = []
 
-  # all positive, all negative
   all = len(Y)
   allP = sum(Y)
   allN = all - allP
 
-  # sort Y according to pred
   predY = sorted(zip(pred, Y))
   predSorted = [ a for (a,b) in predY ]
   YSorted = [ b for (a,b) in predY ]
 
-  # use only unqiue values by get set()
   uniquePred = sorted(list(set(pred)))
   uniquePredIdx = uniqueValueIdx(predSorted)
-  # get p value for each unique pred values for estFDR
-  # @IMPORTANT: uniquePvalues have duplicates, when get
-  ##  their rank (k) to adjust for pvalue, be careful
   uniquePvalue = [ calcPvalue(a,ctrl) for a in uniquePred ]   
-  # @ADDED: the BH method of p.adjust is not merely p*m/k
-  # REF: R source code for p.adjust fdr,
-  # http://r.789695.n4.nabble.com/BH-correction-with-p-adjust-tc4671988.html#none
-  tmpMin = 0.0
 
   # inference
   for i in range(len(uniquePred)) :
@@ -506,14 +458,12 @@ def doInference(Y, pred, ctrl):
       tmpMin = tmpEstFDR
     estFDR.append( min(tmpMin, 1.0) )
 
-  # add last values
   sens.append( 0.0 )
   FPR.append( 0.0 )
   trueFDR.append( 0.0 )
   estFDR.append( 0.0 )
 
   # make sure true FDR is decreasing
-  ##  need adjust from last FDR to first FDR
   for i in range(1,len(trueFDR)) :
     if trueFDR[i-1] < trueFDR[i] :
       trueFDR[i] = trueFDR[i-1]
@@ -528,12 +478,8 @@ def doInference(Y, pred, ctrl):
 def calcPvalue(value, ctrl) :
   return float(sum(( int(a >= value) for a in ctrl )))/float(len(ctrl))
 
+#---
 # main
-# @NOTE: after adding inference
-#   this script implicitly assumes that
-#   final train data ends with `_train`
-#   control data for inference ends with `_control`
-#   test data: original test data name
 #---
 def main(argv) :
 
@@ -545,13 +491,10 @@ def main(argv) :
 
 
   # reserve control for inference
-  ## split train into train+'_train'
-  ## and train + '_control'
   m = 500
   reserveControl(trainFile, m)
 
   # add benchmark
-  ## automatically add '_Benchmark' to end of filename
   model.append('Benchmark')
   addBenchmark(trainFile + '_train', k)
   addBenchmark(trainFile + '_control', k)
@@ -563,22 +506,17 @@ def main(argv) :
 
   print '---------------------------------------------'
   print '- training models '
-  # train model
   trainModels(trainFile + '_train', testFile,  model)
 
   # predict model
   print '----------------------------------------'
   print '- predicting with models '
-  ## predict train to get error
   predictModels(trainFile + '_train', trainFile + '_train', model) 
-  ## predict train control to get inference
   predictModels(trainFile + '_train', trainFile + '_control', model) 
-  ## predict test
   predictModels(trainFile + '_train', testFile, model)
 
   # collect results
   start = time.time()
-  ## collect train
   (trainYs, trainResult) = collectResults(trainFile + '_train', \
       trainFile + '_train', model) 
   elapsed = time.time() - start
@@ -596,7 +534,7 @@ def main(argv) :
   elapsed = time.time() - start
 
   weights = getVotingWeights(model, trainFile, fold = 3)
-  top = 3
+  top = 2
   votedResult = getVotingResults(testResult, weights, top)
   votedResultControl = getVotingResults(controlResult, weights, top)
 
@@ -658,8 +596,6 @@ def main(argv) :
 
   f = open(outputFileROC, 'w')
 
-  ## now ROC have different lens for different models
-  ## as we use the unique values
   lenROC = [ len(a) for a in testROC ]
 
   for j in range( max(lenROC) ):
@@ -682,8 +618,6 @@ def main(argv) :
 
   f = open(outputFileEstFDR, 'w')
 
-  ## now estFDR have different lens for different models
-  ## as we use the unique values
   lenEstFDR = [ len(a) for a in estFDR ]
 
   for j in range( max(lenEstFDR) ):
@@ -707,8 +641,6 @@ def main(argv) :
 
   f = open(outputFileTrueFDR, 'w')
 
-  ## now trueFDR have different lens for different models
-  ## as we use the unique values
   lenTrueFDR = [ len(a) for a in trueFDR ]
 
   for j in range( max(lenTrueFDR) ):
