@@ -470,7 +470,7 @@ def main(argv) :
   
 
 
-  m = 500
+  m = 100
   reserveControl(trainFile, m)
 
   model.append('Benchmark')
@@ -527,8 +527,8 @@ def main(argv) :
   model.append('voting')
 
   tmpmodel = list(set([ a.split('_')[0] for a in model]))
-  outputFile = ''.join( [ trainFile, \
-      os.path.basename(testFile),','.join(tmpmodel), '_result'] )
+  # outputFile = ''.join( [ trainFile, \
+  #    os.path.basename(testFile),','.join(tmpmodel), '_result'] )
 
   writeFormatted(testYs, testResult, outputFile)
   
