@@ -52,12 +52,12 @@ python fcat.py -model RandomForest,LogisticRegressionL1 -train ./data/feature_tr
 #### Other requirements:
 * Currently, `fcat` only supports linux/unix.
 * `fcat` require python is installed (2.6.6 or higher) on the machine.
-* `fcat` require `gcc/g++` 4.4.7 or higher.
+* `fcat` require `gcc/g++` 4.4.7 or higher. `fcat` does NOT work with `clang++`/`LLVM` on mac. Please install `gcc` first on mac os x (see [How to install `gcc`](#gcc)).
 
 #### How to use
 After installation, four exectuable programs will appear in `\src`: `countCoverage`, `extractFeature`, `trainModel`, `predictModel` as well as `fcat.py`. In command line, type the program with no arguments to see options:
 
-* `countCoverage` count read coverage based on bam files. It takes in a file containing a list of bam file names (with full path) and a parameter setting file that sets the resolution and single-end/paired-end of the bam files. 
+* `countCoverage` count read coverage based on bam file (See [how to obtain bam files?](#alignment). It takes in a file containing a list of bam file names (with full path) and a parameter setting file that sets the resolution and single-end/paired-end of the bam files. When using `countCoverage`, we need the size of genomes; currently `fcat` only supports hg19.
 
 ```sh
 ./countCoverage
@@ -118,6 +118,16 @@ max=100
 /* -o output results                  */
 /*------------------------------------*/
 ```
+#### `fcat` output
+* `[output]_result`: predicted probability from specified models. The 1st column is a placeholder for ground truth. The last column corresponds the integrated model output.
+* `[output]_FDRresult`: false discovery rate from specified models. 
+
+#### <a name="alignment">How to get bam files?</a>
+* Start with `fastq` files, you can use [`bowtie`](http://bowtie-bio.sourceforge.net/index.shtml), [`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml), [`tophat`](https://ccb.jhu.edu/software/tophat/index.shtml), and [`HISAT`](http://www.ccb.jhu.edu/software/hisat/index.shtml) to obtain aligned reads in `bam` format.
+
+#### <a name="gcc">How to install `gcc`?<\a>
+* `gcc` is included `command line tools` plugin for mac os x built-in `Xcode`. Step 1: open Xcode; Step 2: menu > preferences > downloads; Step 3: click install `Command Line Tools`; Step 4: verify installation by `gcc -v` on command line in your terminal. 
+* Here is a [video](https://www.youtube.com/watch?v=TCK9zrLVx_Y) for how to install `gcc` on mac.
 
 #### Note:
 * `fcat` uses codes from [`liblinear`](http://www.csie.ntu.edu.tw/~cjlin/liblinear/) and [`rt-rank`](https://sites.google.com/site/rtranking/) projects.
