@@ -315,7 +315,12 @@ def collectResults(trainFile, testFile, model) :
         labelIdx = 2
       result.append([ float(x.split(' ')[labelIdx]) for x in tmp[1:] ])
     else :
-      result.append([ float(x) for x in file.read().splitlines()] )
+      try : 
+      	result.append([ float(x) for x in file.read().splitlines()] )
+      except :
+      	print 'errors opening ' file
+      	print 'if on mac, please check whether you installed and used gcc to compile the program'
+      	sys.exit(0)
     file.close()
   
   return (ys, result)
