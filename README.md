@@ -126,8 +126,18 @@ max=100
 * Start with `fastq` files, you can use [`bowtie`](http://bowtie-bio.sourceforge.net/index.shtml), [`bowtie2`](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml), [`tophat`](https://ccb.jhu.edu/software/tophat/index.shtml), and [`HISAT`](http://www.ccb.jhu.edu/software/hisat/index.shtml) to obtain aligned reads in `bam` format.
 
 #### <a name="gcc">How to install `gcc`?</a>
-* `gcc` is included `command line tools` plugin for mac os x built-in `Xcode`. Step 1: open Xcode; Step 2: menu > preferences > downloads; Step 3: click install `Command Line Tools`; Step 4: verify installation by `gcc -v` on command line in your terminal. 
-* Here is a [video](https://www.youtube.com/watch?v=TCK9zrLVx_Y) for how to install `gcc` on mac.
+* Step 1: Open terminal and type the following command
+
+```bash
+brew tap homebrew/dupes
+brew install gcc
+```
+
+* Step 2: type the following command
+
+```bash
+export CC=/usr/local/bin/gcc
+```
 
 #### Note:
 * `fcat` uses codes from [`liblinear`](http://www.csie.ntu.edu.tw/~cjlin/liblinear/) and [`rt-rank`](https://sites.google.com/site/rtranking/) projects.
