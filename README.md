@@ -10,7 +10,8 @@
 * Ease to use
 
 #### Quick Start
-* Step 1: Download [fcat-linux-v1.0.zip](https://github.com/HeBing/fcat/archive/linux-v1.0-beta.zip) for linux and [fcat-mac-v1.0.zip](https://github.com/HeBing/fcat/archive/mac-v1.0-beta.zip) for mac OS X.
+* Step 1: Download [fcat-linux-v1.0.zip](https://github.com/HeBing/fcat/archive/linux-v1.0-beta.zip) for linux and [fcat-mac-v1.0.zip](https://github.com/HeBing/fcat/archive/mac-v1.0-beta.zip) for mac OS X
+<sub><sup>Note: `fcat` does NOT work with `clang++`/`LLVM` on mac. Please install `gcc` first on mac os x (see [How to install `gcc`](#gcc)).</sup></sub>
 * Step 2: unzip the download file
 * Step 3: change working directory to the unzipped folder and type `make` from command line
 * Step 4: change working directory to `src/` and run fcat with
@@ -52,7 +53,7 @@ python fcat.py -model RandomForest,LogisticRegressionL1 -train ./data/feature_tr
 #### Other requirements:
 * Currently, `fcat` only supports linux/unix.
 * `fcat` require python is installed (2.6.6 or higher) on the machine.
-* `fcat` require `gcc/g++` 4.4.7 or higher. `fcat` does NOT work with `clang++`/`LLVM` on mac. Please install `gcc` first on mac os x (see [How to install `gcc`](#gcc)).
+* `fcat` require `gcc/g++` 4.4.7 or higher. Note: `fcat` does NOT work with `clang++`/`LLVM` on mac. Please install `gcc` first on mac os x (see [How to install `gcc`](#gcc)).
 
 #### How to use
 After installation, four exectuable programs will appear in `\src`: `countCoverage`, `extractFeature`, `trainModel`, `predictModel` as well as `fcat.py`. In command line, type the program with no arguments to see options:
